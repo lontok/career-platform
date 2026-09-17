@@ -219,6 +219,7 @@ __marimo__/
 
 # Local Git worktrees
 .worktrees/
+.superpowers/
 
 # Application-local state
 data/*.db

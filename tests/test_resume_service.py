@@ -123,7 +123,7 @@ def test_homepage_returns_only_published_content_with_expected_ordering(
             published=True,
             display_order=10,
         )
-        current_role.skills.extend([python_skill, sql_skill])
+        current_role.skills.extend([python_skill, sql_skill, hidden_skill])
         current_role.accomplishments.extend(
             [
                 ExperienceAccomplishment(
@@ -174,7 +174,7 @@ def test_homepage_returns_only_published_content_with_expected_ordering(
                     published=True,
                     featured=True,
                     display_order=1,
-                    skills=[sql_skill],
+                    skills=[sql_skill, hidden_skill],
                 ),
                 Project(
                     slug="featured-second",
@@ -268,6 +268,8 @@ def test_homepage_returns_only_published_content_with_expected_ordering(
         "featured-first",
         "featured-second",
     ]
+    assert [skill.name for skill in homepage.experiences[0].skills] == ["SQL", "Python"]
+    assert [skill.name for skill in homepage.projects[0].skills] == ["SQL"]
     assert [skill.name for skill in homepage.skills] == ["SQL", "Python"]
     assert [education.institution_name for education in homepage.education] == [
         "Community College",
@@ -299,18 +301,20 @@ def test_published_collection_queries_filter_and_order_public_data(
         )
         session.add_all([sql_skill, python_skill, hidden_skill])
 
+        current_role = Experience(
+            role_title="Current Role",
+            organization="Current Org",
+            location="Los Angeles, CA",
+            start_date=date(2026, 1, 1),
+            end_date=None,
+            is_current=True,
+            summary="Current summary",
+            published=True,
+        )
+        current_role.skills.extend([sql_skill, hidden_skill])
         session.add_all(
             [
-                Experience(
-                    role_title="Current Role",
-                    organization="Current Org",
-                    location="Los Angeles, CA",
-                    start_date=date(2026, 1, 1),
-                    end_date=None,
-                    is_current=True,
-                    summary="Current summary",
-                    published=True,
-                ),
+                current_role,
                 Experience(
                     role_title="Past Role",
                     organization="Past Org",
@@ -357,7 +361,7 @@ def test_published_collection_queries_filter_and_order_public_data(
                     published=True,
                     featured=False,
                     display_order=1,
-                    skills=[sql_skill],
+                    skills=[sql_skill, hidden_skill],
                 ),
                 Project(
                     slug="hidden-project",
@@ -407,14 +411,18 @@ def test_published_collection_queries_filter_and_order_public_data(
 
     service = ResumeService(session_factory=session_factory)
 
-    assert [experience.organization for experience in service.get_experiences()] == [
+    experiences = service.get_experiences()
+    assert [experience.organization for experience in experiences] == [
         "Current Org",
         "Past Org",
     ]
-    assert [project.slug for project in service.get_projects()] == [
+    assert [skill.name for skill in experiences[0].skills] == ["SQL"]
+    projects = service.get_projects()
+    assert [project.slug for project in projects] == [
         "first-project",
         "second-project",
     ]
+    assert [skill.name for skill in projects[0].skills] == ["SQL"]
     assert [skill.name for skill in service.get_skills()] == ["SQL", "Python"]
     assert [education.institution_name for education in service.get_education()] == [
         "Visible Two",
@@ -430,7 +438,13 @@ def test_get_project_by_slug_returns_published_projects_only(session_factory) ->
             display_order=1,
             published=True,
         )
-        session.add(sql_skill)
+        hidden_skill = Skill(
+            name="Hidden",
+            category="private",
+            display_order=2,
+            published=False,
+        )
+        session.add_all([sql_skill, hidden_skill])
         session.add_all(
             [
                 Project(
@@ -443,7 +457,7 @@ def test_get_project_by_slug_returns_published_projects_only(session_factory) ->
                     published=True,
                     featured=False,
                     display_order=1,
-                    skills=[sql_skill],
+                    skills=[sql_skill, hidden_skill],
                 ),
                 Project(
                     slug="private-work",

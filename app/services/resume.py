@@ -5,7 +5,7 @@ from pathlib import Path
 
 from sqlalchemy import bindparam, select
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, with_loader_criteria
 
 from app.db.session import SessionLocal
 from app.models import Education, Experience, Profile, Project, Skill
@@ -40,7 +40,9 @@ class ResumeService:
                     .limit(1)
                 ).scalar_one_or_none()
                 experiences = session.execute(self._experience_query()).scalars().all()
-                projects = session.execute(self._homepage_project_query()).scalars().all()
+                projects = (
+                    session.execute(self._homepage_project_query()).scalars().all()
+                )
                 skills = session.execute(self._skill_query()).scalars().all()
                 education = session.execute(self._education_query()).scalars().all()
         except (OperationalError, SQLAlchemyError):
@@ -69,7 +71,9 @@ class ResumeService:
                 return session.execute(self._experience_query()).scalars().all()
         except (OperationalError, SQLAlchemyError) as exc:
             logger.exception("Unable to load published experiences")
-            raise DatabaseUnavailableError("Published experiences are unavailable") from exc
+            raise DatabaseUnavailableError(
+                "Published experiences are unavailable"
+            ) from exc
 
     def get_projects(self) -> list[Project]:
         try:
@@ -77,7 +81,9 @@ class ResumeService:
                 return session.execute(self._project_query()).scalars().all()
         except (OperationalError, SQLAlchemyError) as exc:
             logger.exception("Unable to load published projects")
-            raise DatabaseUnavailableError("Published projects are unavailable") from exc
+            raise DatabaseUnavailableError(
+                "Published projects are unavailable"
+            ) from exc
 
     def get_skills(self) -> list[Skill]:
         try:
@@ -93,12 +99,17 @@ class ResumeService:
                 return session.execute(self._education_query()).scalars().all()
         except (OperationalError, SQLAlchemyError) as exc:
             logger.exception("Unable to load published education")
-            raise DatabaseUnavailableError("Published education is unavailable") from exc
+            raise DatabaseUnavailableError(
+                "Published education is unavailable"
+            ) from exc
 
     def get_project_by_slug(self, slug: str) -> Project | None:
         statement = (
             select(Project)
-            .options(selectinload(Project.skills))
+            .options(
+                selectinload(Project.skills),
+                self._published_skill_loader(),
+            )
             .where(
                 Project.slug == bindparam("slug"),
                 Project.published.is_(True),
@@ -121,6 +132,7 @@ class ResumeService:
             .options(
                 selectinload(Experience.accomplishments),
                 selectinload(Experience.skills),
+                ResumeService._published_skill_loader(),
             )
             .where(Experience.published.is_(True))
             .order_by(
@@ -135,7 +147,10 @@ class ResumeService:
     def _homepage_project_query():
         return (
             select(Project)
-            .options(selectinload(Project.skills))
+            .options(
+                selectinload(Project.skills),
+                ResumeService._published_skill_loader(),
+            )
             .where(Project.published.is_(True), Project.featured.is_(True))
             .order_by(Project.display_order.asc(), Project.id.asc())
         )
@@ -144,9 +159,20 @@ class ResumeService:
     def _project_query():
         return (
             select(Project)
-            .options(selectinload(Project.skills))
+            .options(
+                selectinload(Project.skills),
+                ResumeService._published_skill_loader(),
+            )
             .where(Project.published.is_(True))
             .order_by(Project.display_order.asc(), Project.id.asc())
+        )
+
+    @staticmethod
+    def _published_skill_loader():
+        return with_loader_criteria(
+            Skill,
+            Skill.published.is_(True),
+            include_aliases=True,
         )
 
     @staticmethod
