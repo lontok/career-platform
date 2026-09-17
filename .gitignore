@@ -219,3 +219,7 @@ __marimo__/
 
 # Local Git worktrees
 .worktrees/
+
+# Application-local state
+data/*.db
+*.sqlite3
