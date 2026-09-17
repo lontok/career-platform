@@ -177,7 +177,9 @@ def _ensure_valid_dates() -> None:
 
 def _upsert_profile(session) -> Profile:
     statement = select(Profile).where(Profile.email == bindparam("email")).limit(1)
-    profile = session.execute(statement, {"email": SEED_PROFILE["email"]}).scalar_one_or_none()
+    profile = session.execute(
+        statement, {"email": SEED_PROFILE["email"]}
+    ).scalar_one_or_none()
     if profile is None:
         profile = Profile(**SEED_PROFILE)
         session.add(profile)
@@ -191,7 +193,9 @@ def _upsert_skills(session) -> dict[str, Skill]:
     skills_by_name: dict[str, Skill] = {}
     for payload in SEED_SKILLS:
         statement = select(Skill).where(Skill.name == bindparam("name")).limit(1)
-        skill = session.execute(statement, {"name": payload["name"]}).scalar_one_or_none()
+        skill = session.execute(
+            statement, {"name": payload["name"]}
+        ).scalar_one_or_none()
         if skill is None:
             skill = Skill(**payload)
             session.add(skill)
@@ -243,7 +247,9 @@ def _upsert_experiences(session, skills_by_name: dict[str, Skill]) -> None:
 def _upsert_projects(session, skills_by_name: dict[str, Skill]) -> None:
     for payload in SEED_PROJECTS:
         statement = select(Project).where(Project.slug == bindparam("slug")).limit(1)
-        project = session.execute(statement, {"slug": payload["slug"]}).scalar_one_or_none()
+        project = session.execute(
+            statement, {"slug": payload["slug"]}
+        ).scalar_one_or_none()
         core_fields = {
             key: value for key, value in payload.items() if key != "skill_names"
         }

@@ -59,9 +59,7 @@ class PublicProfile(BaseModel):
 class FallbackProfile(PublicProfile):
     @field_validator("contact_links")
     @classmethod
-    def _require_contact_links(
-        cls, value: list[ContactLink]
-    ) -> list[ContactLink]:
+    def _require_contact_links(cls, value: list[ContactLink]) -> list[ContactLink]:
         if not value:
             raise ValueError("Fallback profile must include at least one contact link")
         return value

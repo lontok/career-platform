@@ -88,7 +88,10 @@ def test_seed_demo_content_creates_published_records_and_is_idempotent(
     with session_factory() as session:
         assert session.scalar(select(func.count()).select_from(Profile)) == 1
         assert session.scalar(select(func.count()).select_from(Experience)) == 1
-        assert session.scalar(select(func.count()).select_from(ExperienceAccomplishment)) == 1
+        assert (
+            session.scalar(select(func.count()).select_from(ExperienceAccomplishment))
+            == 1
+        )
         assert session.scalar(select(func.count()).select_from(Project)) == 1
         assert session.scalar(select(func.count()).select_from(Skill)) >= 1
         assert session.scalar(select(func.count()).select_from(Education)) == 1
