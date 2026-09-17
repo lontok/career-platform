@@ -24,4 +24,4 @@ uv run alembic upgrade head
 
 `DATABASE_URL` is loaded through `app.core.config.Settings`, so update `.env` when you want a different SQLite file location.
 
-Do not commit SQLite database files. Keep local database files under `data/`, which is already ignored by git.
+Do not commit SQLite database files. Keep local SQLite database files under `data/`; the repository ignores database files there (`*.db`, `*.db-wal`, `*.db-shm`, `*.db-journal`, plus matching `*.sqlite3` sidecar files). The `data/` directory itself is not globally ignored.

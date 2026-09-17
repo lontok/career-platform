@@ -1,7 +1,7 @@
 import importlib
 from datetime import date
 
-from sqlalchemy import text
+from sqlalchemy import select, text
 
 from app.db.base import Base
 from app.models.experience import Experience, ExperienceAccomplishment
@@ -9,28 +9,54 @@ from app.models.project import Project
 from app.models.skill import Skill
 
 
-def test_project_can_have_skills() -> None:
-    project = Project(
-        slug="revenue-dashboard",
-        title="Revenue Dashboard",
-        summary="Dashboard for weekly sales decisions.",
-        problem="Sales reporting was delayed.",
-        contribution="Built the reporting model.",
-        methods="SQL and Python",
-        published=True,
-    )
-    skill = Skill(name="SQL", category="analytics", published=True)
+def _reload_session_module(
+    monkeypatch, database_url: str = "sqlite+pysqlite:///:memory:"
+):
+    monkeypatch.setenv("DATABASE_URL", database_url)
 
-    project.skills.append(skill)
+    session_module = importlib.import_module("app.db.session")
+    return importlib.reload(session_module)
 
-    assert project.skills == [skill]
+
+def test_project_skill_association_persists_across_sessions(monkeypatch) -> None:
+    session_module = _reload_session_module(monkeypatch)
+    Base.metadata.create_all(session_module.engine)
+
+    with session_module.SessionLocal() as session:
+        project = Project(
+            slug="revenue-dashboard",
+            title="Revenue Dashboard",
+            summary="Dashboard for weekly sales decisions.",
+            problem="Sales reporting was delayed.",
+            contribution="Built the reporting model.",
+            methods="SQL and Python",
+            published=True,
+        )
+        skill = Skill(name="Python", category="backend", published=True)
+
+        project.skills.append(skill)
+
+        session.add(project)
+        session.commit()
+        project_id = project.id
+
+    with session_module.SessionLocal() as session:
+        reloaded_project = session.execute(
+            select(Project).where(Project.id == project_id)
+        ).scalar_one()
+        association_count = session.execute(
+            text("SELECT COUNT(*) FROM project_skills WHERE project_id = :project_id"),
+            {"project_id": project_id},
+        ).scalar_one()
+
+        assert [saved_skill.name for saved_skill in reloaded_project.skills] == [
+            "Python"
+        ]
+        assert association_count == 1
 
 
 def test_session_local_enables_sqlite_foreign_keys(monkeypatch) -> None:
-    monkeypatch.setenv("DATABASE_URL", "sqlite+pysqlite:///:memory:")
-
-    session_module = importlib.import_module("app.db.session")
-    session_module = importlib.reload(session_module)
+    session_module = _reload_session_module(monkeypatch)
 
     with session_module.SessionLocal() as session:
         foreign_keys = session.execute(text("PRAGMA foreign_keys")).scalar_one()
@@ -38,11 +64,8 @@ def test_session_local_enables_sqlite_foreign_keys(monkeypatch) -> None:
     assert foreign_keys == 1
 
 
-def test_deleting_experience_cascades_accomplishments(monkeypatch) -> None:
-    monkeypatch.setenv("DATABASE_URL", "sqlite+pysqlite:///:memory:")
-
-    session_module = importlib.import_module("app.db.session")
-    session_module = importlib.reload(session_module)
+def test_database_delete_cascades_experience_accomplishments(monkeypatch) -> None:
+    session_module = _reload_session_module(monkeypatch)
     Base.metadata.create_all(session_module.engine)
 
     with session_module.SessionLocal() as session:
@@ -65,9 +88,21 @@ def test_deleting_experience_cascades_accomplishments(monkeypatch) -> None:
 
         session.add(experience)
         session.commit()
+        experience_id = experience.id
         accomplishment_id = experience.accomplishments[0].id
 
-        session.delete(experience)
+        session.execute(
+            text("DELETE FROM experiences WHERE id = :experience_id"),
+            {"experience_id": experience_id},
+        )
         session.commit()
 
-        assert session.get(ExperienceAccomplishment, accomplishment_id) is None
+        remaining_accomplishments = session.execute(
+            text(
+                "SELECT COUNT(*) FROM experience_accomplishments "
+                "WHERE id = :accomplishment_id"
+            ),
+            {"accomplishment_id": accomplishment_id},
+        ).scalar_one()
+
+        assert remaining_accomplishments == 0

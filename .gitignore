@@ -222,4 +222,10 @@ __marimo__/
 
 # Application-local state
 data/*.db
-*.sqlite3
+data/*.db-journal
+data/*.db-shm
+data/*.db-wal
+data/*.sqlite3
+data/*.sqlite3-journal
+data/*.sqlite3-shm
+data/*.sqlite3-wal
