@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from app import models  # noqa: F401
 from app.core.config import Settings
 from app.db.base import Base
 from app.db.session import register_sqlite_foreign_keys

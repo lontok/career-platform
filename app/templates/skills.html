@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Skills | Career Platform{% endblock %}
+
+{% block content %}
+  <h1>Skills</h1>
+  <div class="stack">
+    {% for category, skills in skill_groups %}
+      <section class="card" aria-labelledby="category-{{ loop.index }}">
+        <h2 id="category-{{ loop.index }}">{{ category | replace("_", " ") | title }}</h2>
+        <ul class="stacked-list">
+          {% for skill in skills %}
+            <li>
+              <strong>{{ skill.name }}</strong>
+              {% if skill.context %}
+                <p>{{ skill.context }}</p>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+  </div>
+{% endblock %}

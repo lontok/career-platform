@@ -9,15 +9,29 @@
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <header class="site-header">
-      <nav aria-label="Primary navigation">
-        <a href="/">Home</a>
-      </nav>
+      <div class="site-shell site-header-layout">
+        <p class="site-name"><a href="/">Career Platform</a></p>
+        <nav aria-label="Primary navigation">
+          <ul class="site-nav">
+            {% for link in nav_links %}
+              <li>
+                <a
+                  href="{{ link.href }}"
+                  {% if link.current %}aria-current="page"{% endif %}
+                >{{ link.label }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+      </div>
     </header>
-    <main id="main-content">
+    <main id="main-content" class="site-shell site-main">
       {% block content %}{% endblock %}
     </main>
     <footer class="site-footer">
-      <p>Career Platform</p>
+      <div class="site-shell">
+        <p>Career Platform</p>
+      </div>
     </footer>
   </body>
 </html>

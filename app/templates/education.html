@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Education | Career Platform{% endblock %}
+
+{% block content %}
+  <h1>Education</h1>
+  <div class="stack">
+    {% for record in education_records %}
+      <article class="card">
+        <header class="card-header">
+          <div>
+            <h2>{{ record.institution_name }}</h2>
+            <p>{{ record.degree_or_program }} in {{ record.field_of_study }}</p>
+          </div>
+          <p class="muted">
+            {{ record.start_date.strftime("%b %Y") }}
+            —
+            {% if record.end_date %}
+              {{ record.end_date.strftime("%b %Y") }}
+            {% else %}
+              Present
+            {% endif %}
+          </p>
+        </header>
+        <dl class="meta-list">
+          {% if record.gpa %}
+            <div>
+              <dt>GPA</dt>
+              <dd>{{ record.gpa }}</dd>
+            </div>
+          {% endif %}
+          {% if record.honors %}
+            <div>
+              <dt>Honors</dt>
+              <dd>{{ record.honors }}</dd>
+            </div>
+          {% endif %}
+          {% if record.relevant_coursework %}
+            <div>
+              <dt>Relevant coursework</dt>
+              <dd>{{ record.relevant_coursework }}</dd>
+            </div>
+          {% endif %}
+          {% if record.certifications %}
+            <div>
+              <dt>Certifications</dt>
+              <dd>{{ record.certifications }}</dd>
+            </div>
+          {% endif %}
+        </dl>
+      </article>
+    {% endfor %}
+  </div>
+{% endblock %}
