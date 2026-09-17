@@ -42,6 +42,27 @@
   </section>
 
   {% if not content.is_fallback %}
+    {% set impact_items = [] %}
+    {% for experience in content.experiences %}
+      {% for accomplishment in experience.accomplishments %}
+        {% if accomplishment.metric %}
+          {% set _ = impact_items.append(accomplishment) %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+    {% if impact_items %}
+      <section aria-labelledby="home-impact-heading">
+        <div class="section-heading">
+          <h2 id="home-impact-heading">Impact summary</h2>
+        </div>
+        <ul class="impact-list">
+          {% for accomplishment in impact_items %}
+            <li><strong>{{ accomplishment.metric }}</strong> — {{ accomplishment.statement }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
     <section aria-labelledby="home-experience-heading">
       <div class="section-heading">
         <h2 id="home-experience-heading">Experience</h2>

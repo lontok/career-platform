@@ -4,8 +4,9 @@ from collections import Counter
 from datetime import date
 from pathlib import Path
 
-from sqlalchemy import bindparam, select
+from sqlalchemy import select, update
 
+from app.core.urls import normalize_http_url
 from app.db.session import SessionLocal
 from app.models import (
     Education,
@@ -20,6 +21,7 @@ from app.schemas import load_fallback_profile
 FALLBACK_PROFILE_PATH = Path(__file__).resolve().parent / "fallback_profile.json"
 
 SEED_PROFILE = {
+    "seed_key": "profile:primary",
     "full_name": "Alex Parker",
     "headline": "Analytics-focused software builder for business teams",
     "summary": (
@@ -36,6 +38,7 @@ SEED_PROFILE = {
 
 SEED_SKILLS = [
     {
+        "seed_key": "skill:sql",
         "name": "SQL",
         "category": "analytics",
         "context": "Warehouse modeling, QA, and decision support.",
@@ -43,6 +46,7 @@ SEED_SKILLS = [
         "published": True,
     },
     {
+        "seed_key": "skill:python",
         "name": "Python",
         "category": "programming",
         "context": "Automation, data services, and testing.",
@@ -53,6 +57,7 @@ SEED_SKILLS = [
 
 SEED_EXPERIENCES = [
     {
+        "seed_key": "experience:west-coast-commerce:analytics-engineering-intern",
         "role_title": "Analytics Engineering Intern",
         "organization": "West Coast Commerce",
         "location": "Los Angeles, CA",
@@ -75,6 +80,7 @@ SEED_EXPERIENCES = [
 
 SEED_PROJECTS = [
     {
+        "seed_key": "project:career-platform",
         "slug": "career-platform",
         "title": "Career Platform Resume Site",
         "summary": "Database-driven resume content for analytics-focused roles.",
@@ -93,6 +99,7 @@ SEED_PROJECTS = [
 
 SEED_EDUCATION = [
     {
+        "seed_key": "education:california-state-university:information-systems-bs",
         "institution_name": "California State University",
         "degree_or_program": "B.S.",
         "field_of_study": "Information Systems",
@@ -110,8 +117,10 @@ SEED_EDUCATION = [
 
 def validate_seed_data() -> None:
     _ensure_unique_project_slugs()
+    _ensure_seed_keys()
     _ensure_valid_references()
     _ensure_valid_dates()
+    _ensure_valid_project_urls()
 
 
 def seed_demo_content(
@@ -139,6 +148,28 @@ def _ensure_unique_project_slugs() -> None:
     duplicate_slugs = sorted(slug for slug, count in slug_counts.items() if count > 1)
     if duplicate_slugs:
         raise ValueError(f"Duplicate project slug: {duplicate_slugs[0]}")
+
+
+def _ensure_seed_keys() -> None:
+    seed_collections = (
+        ("profile", [SEED_PROFILE]),
+        ("skill", SEED_SKILLS),
+        ("experience", SEED_EXPERIENCES),
+        ("project", SEED_PROJECTS),
+        ("education", SEED_EDUCATION),
+    )
+    for collection_name, collection in seed_collections:
+        seed_keys = [record.get("seed_key") for record in collection]
+        if any(not isinstance(seed_key, str) or not seed_key for seed_key in seed_keys):
+            raise ValueError(f"Missing seed key for {collection_name}")
+
+        duplicate_keys = sorted(
+            seed_key for seed_key, count in Counter(seed_keys).items() if count > 1
+        )
+        if duplicate_keys:
+            raise ValueError(
+                f"Duplicate seed key for {collection_name}: {duplicate_keys[0]}"
+            )
 
 
 def _ensure_valid_references() -> None:
@@ -175,11 +206,24 @@ def _ensure_valid_dates() -> None:
             )
 
 
+def _ensure_valid_project_urls() -> None:
+    for project in SEED_PROJECTS:
+        for field in ("repository_url", "live_demo_url"):
+            value = project[field]
+            if value is not None and normalize_http_url(value) is None:
+                raise ValueError(f"Invalid project URL: {field} for {project['slug']}")
+
+
 def _upsert_profile(session) -> Profile:
-    statement = select(Profile).where(Profile.email == bindparam("email")).limit(1)
-    profile = session.execute(
-        statement, {"email": SEED_PROFILE["email"]}
-    ).scalar_one_or_none()
+    profile = session.scalar(
+        select(Profile).where(Profile.seed_key == SEED_PROFILE["seed_key"]).limit(1)
+    )
+
+    published_profiles = update(Profile).where(Profile.published.is_(True))
+    if profile is not None:
+        published_profiles = published_profiles.where(Profile.id != profile.id)
+    session.execute(published_profiles.values(published=False))
+
     if profile is None:
         profile = Profile(**SEED_PROFILE)
         session.add(profile)
@@ -192,10 +236,9 @@ def _upsert_profile(session) -> Profile:
 def _upsert_skills(session) -> dict[str, Skill]:
     skills_by_name: dict[str, Skill] = {}
     for payload in SEED_SKILLS:
-        statement = select(Skill).where(Skill.name == bindparam("name")).limit(1)
-        skill = session.execute(
-            statement, {"name": payload["name"]}
-        ).scalar_one_or_none()
+        skill = session.scalar(
+            select(Skill).where(Skill.seed_key == payload["seed_key"]).limit(1)
+        )
         if skill is None:
             skill = Skill(**payload)
             session.add(skill)
@@ -203,26 +246,17 @@ def _upsert_skills(session) -> dict[str, Skill]:
             for field, value in payload.items():
                 setattr(skill, field, value)
         skills_by_name[payload["name"]] = skill
+    _unpublish_missing_seed_records(session, Skill, SEED_SKILLS)
     return skills_by_name
 
 
 def _upsert_experiences(session, skills_by_name: dict[str, Skill]) -> None:
     for payload in SEED_EXPERIENCES:
-        identity = {
-            "role_title": payload["role_title"],
-            "organization": payload["organization"],
-            "start_date": payload["start_date"],
-        }
-        statement = (
+        experience = session.scalar(
             select(Experience)
-            .where(
-                Experience.role_title == bindparam("role_title"),
-                Experience.organization == bindparam("organization"),
-                Experience.start_date == bindparam("start_date"),
-            )
+            .where(Experience.seed_key == payload["seed_key"])
             .limit(1)
         )
-        experience = session.execute(statement, identity).scalar_one_or_none()
         core_fields = {
             key: value
             for key, value in payload.items()
@@ -242,14 +276,14 @@ def _upsert_experiences(session, skills_by_name: dict[str, Skill]) -> None:
             experience.accomplishments.append(
                 ExperienceAccomplishment(**accomplishment_payload)
             )
+    _unpublish_missing_seed_records(session, Experience, SEED_EXPERIENCES)
 
 
 def _upsert_projects(session, skills_by_name: dict[str, Skill]) -> None:
     for payload in SEED_PROJECTS:
-        statement = select(Project).where(Project.slug == bindparam("slug")).limit(1)
-        project = session.execute(
-            statement, {"slug": payload["slug"]}
-        ).scalar_one_or_none()
+        project = session.scalar(
+            select(Project).where(Project.seed_key == payload["seed_key"]).limit(1)
+        )
         core_fields = {
             key: value for key, value in payload.items() if key != "skill_names"
         }
@@ -262,31 +296,33 @@ def _upsert_projects(session, skills_by_name: dict[str, Skill]) -> None:
                 setattr(project, field, value)
 
         project.skills = [skills_by_name[name] for name in payload["skill_names"]]
+    _unpublish_missing_seed_records(session, Project, SEED_PROJECTS)
 
 
 def _upsert_education(session) -> None:
     for payload in SEED_EDUCATION:
-        identity = {
-            "institution_name": payload["institution_name"],
-            "degree_or_program": payload["degree_or_program"],
-            "start_date": payload["start_date"],
-        }
-        statement = (
-            select(Education)
-            .where(
-                Education.institution_name == bindparam("institution_name"),
-                Education.degree_or_program == bindparam("degree_or_program"),
-                Education.start_date == bindparam("start_date"),
-            )
-            .limit(1)
+        education = session.scalar(
+            select(Education).where(Education.seed_key == payload["seed_key"]).limit(1)
         )
-        education = session.execute(statement, identity).scalar_one_or_none()
         if education is None:
             session.add(Education(**payload))
             continue
 
         for field, value in payload.items():
             setattr(education, field, value)
+    _unpublish_missing_seed_records(session, Education, SEED_EDUCATION)
+
+
+def _unpublish_missing_seed_records(session, model, seed_records) -> None:
+    active_seed_keys = [record["seed_key"] for record in seed_records]
+    session.execute(
+        update(model)
+        .where(
+            model.seed_key.is_not(None),
+            model.seed_key.not_in(active_seed_keys),
+        )
+        .values(published=False)
+    )
 
 
 if __name__ == "__main__":

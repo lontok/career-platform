@@ -1,10 +1,13 @@
 import importlib
 from datetime import date
 
+import pytest
 from sqlalchemy import select, text
+from sqlalchemy.exc import IntegrityError
 
 from app.db.base import Base
 from app.models.experience import Experience, ExperienceAccomplishment
+from app.models.profile import Profile
 from app.models.project import Project
 from app.models.skill import Skill
 
@@ -106,3 +109,36 @@ def test_database_delete_cascades_experience_accomplishments(monkeypatch) -> Non
         ).scalar_one()
 
         assert remaining_accomplishments == 0
+
+
+def test_database_allows_only_one_published_profile(monkeypatch) -> None:
+    session_module = _reload_session_module(monkeypatch)
+    Base.metadata.create_all(session_module.engine)
+
+    with session_module.SessionLocal() as session:
+        session.add(
+            Profile(
+                full_name="First Candidate",
+                headline="First public profile",
+                summary="First profile summary.",
+                location="Los Angeles, CA",
+                target_roles="Analytics Engineer",
+                email="first@example.com",
+                published=True,
+            )
+        )
+        session.commit()
+        session.add(
+            Profile(
+                full_name="Second Candidate",
+                headline="Second public profile",
+                summary="Second profile summary.",
+                location="Los Angeles, CA",
+                target_roles="Analytics Engineer",
+                email="second@example.com",
+                published=True,
+            )
+        )
+
+        with pytest.raises(IntegrityError):
+            session.commit()

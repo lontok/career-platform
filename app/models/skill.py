@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 class Skill(Base):
     __tablename__ = "skills"
     __table_args__ = (
+        Index("ux_skills_seed_key", "seed_key", unique=True),
         Index(
             "ix_skills_published_category_display_order",
             "published",
@@ -24,6 +25,7 @@ class Skill(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    seed_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
     name: Mapped[str] = mapped_column(String(255))
     category: Mapped[str] = mapped_column(String(100), index=True)
     context: Mapped[str | None] = mapped_column(Text, nullable=True)

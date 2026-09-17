@@ -37,6 +37,7 @@ experience_skills = Table(
 class Experience(Base):
     __tablename__ = "experiences"
     __table_args__ = (
+        Index("ux_experiences_seed_key", "seed_key", unique=True),
         Index(
             "ix_experiences_published_current_start_date",
             "published",
@@ -47,6 +48,7 @@ class Experience(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    seed_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
     role_title: Mapped[str] = mapped_column(String(255))
     organization: Mapped[str] = mapped_column(String(255))
     location: Mapped[str] = mapped_column(String(255))

@@ -50,7 +50,8 @@ sudo install -d -m 700 -o career-platform -g career-platform /var/backups/career
 ## 3. Clone and configure the application
 
 ```bash
-sudo install -d -m 755 /srv
+sudo install -d -m 755 -o root -g root /srv
+sudo install -d -m 750 -o career-platform -g career-platform /srv/career-platform
 sudo -u career-platform git clone YOUR_REPOSITORY_URL /srv/career-platform
 sudo install -d -m 750 -o root -g career-platform /etc/career-platform
 sudo tee /etc/career-platform/environment >/dev/null <<'EOF'

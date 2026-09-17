@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import date
 
 import pytest
 from pydantic import ValidationError
@@ -19,6 +20,7 @@ from app.models import (
     Skill,
 )
 from app.schemas.content import FallbackProfile
+from app.services.resume import ResumeService
 
 
 @pytest.fixture()
@@ -107,6 +109,108 @@ def test_seed_demo_content_creates_published_records_and_is_idempotent(
         assert project.slug == seed_module.SEED_PROJECTS[0]["slug"]
         assert project.featured is True
         assert project.published is True
+
+
+def test_seed_updates_stable_records_when_profile_email_and_experience_date_change(
+    session_factory, monkeypatch
+) -> None:
+    seed_module.seed_demo_content(session_factory=session_factory)
+
+    changed_profile = {
+        **seed_module.SEED_PROFILE,
+        "email": "alex.parker.updated@example.com",
+    }
+    changed_experiences = deepcopy(seed_module.SEED_EXPERIENCES)
+    changed_experiences[0]["start_date"] = date(2026, 7, 1)
+    monkeypatch.setattr(seed_module, "SEED_PROFILE", changed_profile)
+    monkeypatch.setattr(seed_module, "SEED_EXPERIENCES", changed_experiences)
+
+    seed_module.seed_demo_content(session_factory=session_factory)
+
+    with session_factory() as session:
+        profiles = session.scalars(select(Profile).order_by(Profile.id)).all()
+        experiences = session.scalars(select(Experience).order_by(Experience.id)).all()
+
+        assert [(profile.email, profile.published) for profile in profiles] == [
+            ("alex.parker.updated@example.com", True)
+        ]
+        assert [
+            (experience.start_date, experience.published) for experience in experiences
+        ] == [(date(2026, 7, 1), True)]
+
+    homepage = ResumeService(session_factory=session_factory).get_homepage()
+    assert homepage.profile is not None
+    assert homepage.profile.email == "alex.parker.updated@example.com"
+    assert [experience.start_date for experience in homepage.experiences] == [
+        date(2026, 7, 1)
+    ]
+
+
+def test_seed_unpublishes_seed_managed_records_removed_from_seed_data(
+    session_factory, monkeypatch
+) -> None:
+    seed_module.seed_demo_content(session_factory=session_factory)
+    monkeypatch.setattr(seed_module, "SEED_SKILLS", [])
+    monkeypatch.setattr(seed_module, "SEED_EXPERIENCES", [])
+    monkeypatch.setattr(seed_module, "SEED_PROJECTS", [])
+    monkeypatch.setattr(seed_module, "SEED_EDUCATION", [])
+
+    seed_module.seed_demo_content(session_factory=session_factory)
+
+    homepage = ResumeService(session_factory=session_factory).get_homepage()
+    assert homepage.profile is not None
+    assert homepage.experiences == []
+    assert homepage.projects == []
+    assert homepage.skills == []
+    assert homepage.education == []
+
+    with session_factory() as session:
+        assert (
+            session.scalar(
+                select(func.count()).select_from(Experience).where(Experience.published)
+            )
+            == 0
+        )
+        assert (
+            session.scalar(
+                select(func.count()).select_from(Project).where(Project.published)
+            )
+            == 0
+        )
+        assert (
+            session.scalar(
+                select(func.count()).select_from(Skill).where(Skill.published)
+            )
+            == 0
+        )
+        assert (
+            session.scalar(
+                select(func.count()).select_from(Education).where(Education.published)
+            )
+            == 0
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("repository_url", "javascript:alert(1)"),
+        ("live_demo_url", "data:text/html,unsafe"),
+        ("repository_url", "not a valid URL"),
+    ],
+)
+def test_seed_rejects_unsafe_project_urls_before_writing(
+    session_factory, monkeypatch, field: str, value: str
+) -> None:
+    invalid_projects = deepcopy(seed_module.SEED_PROJECTS)
+    invalid_projects[0][field] = value
+    monkeypatch.setattr(seed_module, "SEED_PROJECTS", invalid_projects)
+
+    with pytest.raises(ValueError, match="Invalid project URL"):
+        seed_module.seed_demo_content(session_factory=session_factory)
+
+    with session_factory() as session:
+        assert session.scalar(select(func.count()).select_from(Project)) == 0
 
 
 def test_seed_demo_content_rejects_duplicate_project_slugs_before_commit(

@@ -24,6 +24,7 @@ project_skills = Table(
 class Project(Base):
     __tablename__ = "projects"
     __table_args__ = (
+        Index("ux_projects_seed_key", "seed_key", unique=True),
         Index(
             "ix_projects_published_featured_display_order",
             "published",
@@ -34,6 +35,7 @@ class Project(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    seed_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
     slug: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     title: Mapped[str] = mapped_column(String(255))
     summary: Mapped[str] = mapped_column(Text)

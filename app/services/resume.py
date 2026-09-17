@@ -7,6 +7,7 @@ from sqlalchemy import bindparam, select
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import selectinload, with_loader_criteria
 
+from app.core.urls import normalize_http_url
 from app.db.session import SessionLocal
 from app.models import Education, Experience, Profile, Project, Skill
 from app.schemas import HomepageContent, PublicProfile, load_fallback_profile
@@ -60,7 +61,7 @@ class ResumeService:
         return HomepageContent(
             profile=PublicProfile.from_profile(profile) if profile else None,
             experiences=experiences,
-            projects=projects,
+            projects=self._sanitize_project_urls(projects),
             skills=skills,
             education=education,
         )
@@ -78,12 +79,13 @@ class ResumeService:
     def get_projects(self) -> list[Project]:
         try:
             with self._session_factory() as session:
-                return session.execute(self._project_query()).scalars().all()
+                projects = session.execute(self._project_query()).scalars().all()
         except (OperationalError, SQLAlchemyError) as exc:
             logger.exception("Unable to load published projects")
             raise DatabaseUnavailableError(
                 "Published projects are unavailable"
             ) from exc
+        return self._sanitize_project_urls(projects)
 
     def get_skills(self) -> list[Skill]:
         try:
@@ -120,10 +122,20 @@ class ResumeService:
 
         try:
             with self._session_factory() as session:
-                return session.execute(statement, {"slug": slug}).scalar_one_or_none()
+                project = session.execute(
+                    statement, {"slug": slug}
+                ).scalar_one_or_none()
         except (OperationalError, SQLAlchemyError) as exc:
             logger.exception("Unable to load published project for slug=%s", slug)
             raise DatabaseUnavailableError("Published project is unavailable") from exc
+        return self._sanitize_project_urls([project])[0] if project else None
+
+    @staticmethod
+    def _sanitize_project_urls(projects: list[Project]) -> list[Project]:
+        for project in projects:
+            project.repository_url = normalize_http_url(project.repository_url)
+            project.live_demo_url = normalize_http_url(project.live_demo_url)
+        return projects
 
     @staticmethod
     def _experience_query():

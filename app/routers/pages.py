@@ -8,12 +8,14 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from app.core.urls import normalize_http_url
 from app.services import DatabaseUnavailableError, ResumeService
 
 router = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(
     directory=Path(__file__).resolve().parent.parent / "templates"
 )
+templates.env.globals["safe_http_url"] = normalize_http_url
 GENERIC_OUTAGE_MESSAGE = (
     "This service is temporarily unavailable. Please try again later."
 )

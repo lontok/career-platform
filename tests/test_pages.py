@@ -132,6 +132,7 @@ def test_homepage_renders_fallback_for_database_failure(monkeypatch) -> None:
 
     assert response.status_code == 200
     assert "temporarily unavailable" in response.text
+    assert "Impact summary" not in response.text
     assert "Experience" not in response.text
 
 
@@ -149,6 +150,13 @@ def test_homepage_renders_profile_navigation_and_featured_sections(monkeypatch) 
     assert 'aria-label="Primary navigation"' in response.text
     assert "<h1>Alex Parker</h1>" in response.text
     assert "Analytics-focused software builder" in response.text
+    assert "Impact summary" in response.text
+    assert "6 hours saved weekly" in response.text
+    assert (
+        response.text.index("Analytics-focused software builder")
+        < response.text.index("Impact summary")
+        < response.text.index('id="home-experience-heading"')
+    )
     assert 'href="/experience"' in response.text
     assert 'href="/projects"' in response.text
     assert "Featured Projects" in response.text
@@ -197,6 +205,24 @@ def test_projects_pages_render_project_lists_and_external_links(monkeypatch) -> 
     assert "Manual updates were slow." in detail_response.text
     assert 'target="_blank"' in detail_response.text
     assert 'rel="noopener noreferrer"' in detail_response.text
+
+
+def test_project_detail_omits_unsafe_external_links(monkeypatch) -> None:
+    project = published_homepage_content().projects[0]
+    project.repository_url = "javascript:alert(1)"
+    project.live_demo_url = "not a valid URL"
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_project_by_slug",
+        lambda *_: project,
+    )
+
+    with TestClient(create_app()) as app_client:
+        response = app_client.get("/projects/resume-site")
+
+    assert response.status_code == 200
+    assert 'aria-label="Project links"' not in response.text
+    assert "javascript:" not in response.text
+    assert "not a valid URL" not in response.text
 
 
 def test_skills_and_education_pages_render_without_empty_optional_labels(

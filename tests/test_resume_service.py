@@ -484,6 +484,49 @@ def test_get_project_by_slug_returns_published_projects_only(session_factory) ->
     assert service.get_project_by_slug("missing-project") is None
 
 
+def test_project_queries_omit_unsafe_external_urls(session_factory) -> None:
+    with session_factory() as session:
+        session.add_all(
+            [
+                Project(
+                    slug="unsafe-schemes",
+                    title="Unsafe schemes",
+                    summary="Unsafe links must not be public.",
+                    problem="Unsafe links",
+                    contribution="Safe rendering",
+                    methods="Validation",
+                    repository_url="javascript:alert(1)",
+                    live_demo_url="data:text/html,unsafe",
+                    published=True,
+                    display_order=1,
+                ),
+                Project(
+                    slug="malformed-url",
+                    title="Malformed URL",
+                    summary="Malformed links must not be public.",
+                    problem="Malformed links",
+                    contribution="Safe rendering",
+                    methods="Validation",
+                    repository_url="not a valid URL",
+                    live_demo_url="https://demo.example.com",
+                    published=True,
+                    display_order=2,
+                ),
+            ]
+        )
+        session.commit()
+
+    service = ResumeService(session_factory=session_factory)
+    projects = service.get_projects()
+    unsafe_schemes, malformed_url = projects
+
+    assert unsafe_schemes.repository_url is None
+    assert unsafe_schemes.live_demo_url is None
+    assert malformed_url.repository_url is None
+    assert malformed_url.live_demo_url == "https://demo.example.com/"
+    assert service.get_project_by_slug("unsafe-schemes").repository_url is None
+
+
 @pytest.mark.parametrize(
     ("method_name", "args"),
     [

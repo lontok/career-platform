@@ -14,16 +14,18 @@
           {% endfor %}
         </ul>
       {% endif %}
-      {% if project.repository_url or project.live_demo_url %}
+      {% set repository_url = safe_http_url(project.repository_url) %}
+      {% set live_demo_url = safe_http_url(project.live_demo_url) %}
+      {% if repository_url or live_demo_url %}
         <ul class="inline-list" aria-label="Project links">
-          {% if project.repository_url %}
+          {% if repository_url %}
             <li>
-              <a href="{{ project.repository_url }}" target="_blank" rel="noopener noreferrer">Repository</a>
+              <a href="{{ repository_url }}" target="_blank" rel="noopener noreferrer">Repository</a>
             </li>
           {% endif %}
-          {% if project.live_demo_url %}
+          {% if live_demo_url %}
             <li>
-              <a href="{{ project.live_demo_url }}" target="_blank" rel="noopener noreferrer">Live demo</a>
+              <a href="{{ live_demo_url }}" target="_blank" rel="noopener noreferrer">Live demo</a>
             </li>
           {% endif %}
         </ul>

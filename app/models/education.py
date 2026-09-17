@@ -9,10 +9,12 @@ from app.db.base import Base
 class Education(Base):
     __tablename__ = "education"
     __table_args__ = (
+        Index("ux_education_seed_key", "seed_key", unique=True),
         Index("ix_education_published_display_order", "published", "display_order"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    seed_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
     institution_name: Mapped[str] = mapped_column(String(255))
     degree_or_program: Mapped[str] = mapped_column(String(255))
     field_of_study: Mapped[str] = mapped_column(String(255))
