@@ -16,7 +16,8 @@ This is the first stage of a future career platform. The initial release is deli
 2. Present work, education, skills, and projects as evidence of business impact.
 3. Store all displayed resume data in a relational database.
 4. Allow a developer to update the database through seed data or database scripts.
-5. Keep the application simple enough to learn from and deploy to the cloud.
+5. Keep the essential professional profile visible when the database is temporarily unavailable.
+6. Keep the application simple enough to learn from and deploy to the cloud.
 
 ## 3. Non-Goals for the First Release
 
@@ -151,7 +152,7 @@ Each education record stores:
 
 ## 7. Data Design
 
-A relational database is the source of truth. The initial data model includes:
+A SQLite relational database is the source of truth for the first release. The database is a single file, used locally in Codespaces and later stored in a protected persistent directory on the Azure VM. The initial data model includes:
 
 | Table | Responsibility |
 | --- | --- |
@@ -177,13 +178,14 @@ The first release is a **modular monolith**: one deployable web application cont
 | Presentation layer | Renders accessible public pages from application data |
 | Application/data layer | Validates route parameters and retrieves only published data |
 | Database | Stores structured resume content and relationships |
-| Seed workflow | Creates repeatable development and deployment content |
+| Seed workflow | Creates repeatable development and deployment content, including the fallback profile snapshot |
+| Profile fallback | A deployment-time snapshot of the minimum public profile used only when database access fails |
 
 The browser never connects directly to the database. Only server-side application code holds database credentials and performs queries.
 
 ## 9. Functional Requirements
 
-1. Every public page must read its content from the database, not hard-coded page text.
+1. Under normal operation, every public page must read its content from the database, not hard-coded page text.
 2. The homepage must display a non-empty professional introduction, at least one selected content section, and contact links from the profile record.
 3. Experience, projects, skills, and education pages must show only published records.
 4. Experience must sort current roles first, then completed roles by most recent start date.
@@ -193,18 +195,23 @@ The browser never connects directly to the database. Only server-side applicatio
 8. External professional links must open safely in a new browsing context when configured to do so.
 9. The site must remain usable on mobile and desktop screen sizes.
 10. Pages must use semantic headings, keyboard-accessible navigation, descriptive links, and sufficient color contrast.
+11. When database access fails, the homepage must render a version-controlled fallback profile containing the name, headline, professional summary, location, target roles, and configured professional contact links.
+12. During a database outage, experience, project, skill, and education content must be omitted rather than served from an unknown or stale source. The homepage must explain that detailed resume information is temporarily unavailable.
 
 ## 10. Error Handling
 
-- A database connection or query failure must be logged by the server and result in a clear generic error response; it must not expose credentials, raw queries, or stack traces to visitors.
+- A database connection or query failure must be logged by the server. For homepage requests, the server must render the defined fallback profile and a clear temporary-availability message; it must not expose credentials, raw queries, or stack traces to visitors.
+- A database failure on a non-homepage route must result in a clear generic error response; it must not expose credentials, raw queries, or stack traces to visitors.
 - Invalid project slugs and unpublished content must return a normal not-found page, not an application error.
 - If optional content is absent, the corresponding UI element is omitted.
 - Seed-data validation must fail clearly when required profile content, duplicate project slugs, invalid dates, or invalid relationship references are present.
+- The fallback profile must be validated with the same required-profile rules as seed data so it cannot deploy with missing required fields or malformed public URLs.
 
 ## 11. Security and Privacy
 
-- Store database credentials only in server-side environment variables.
+- Store the configured SQLite database-file path only in server-side environment variables.
 - Do not commit secrets, credentials, personal tokens, or private addresses.
+- The fallback profile contains only intentionally public professional information. It must not contain database credentials, private contact details, or private resume content.
 - Use parameterized database queries or the chosen data-access library's equivalent.
 - Keep write operations out of public routes in the first release.
 - Treat the public contact email as intentionally public; do not store private contact details in published records.
@@ -214,13 +221,14 @@ The browser never connects directly to the database. Only server-side applicatio
 
 The deployment design must be cloud-friendly but simple:
 
-- One application deployment.
-- One managed relational database.
-- Environment-specific configuration for development and production.
+- One FastAPI application running locally in Codespaces first, then on a single Azure VM.
+- One SQLite database file kept outside the application directory on the Azure VM, with file permissions that allow only the application service account to read or write it.
+- Environment-specific configuration for local development and the Azure VM, including the SQLite database-file path.
 - A repeatable database schema migration and seed process.
+- A documented backup process that copies the SQLite database file to a separate protected location before each application deployment or schema migration. The restore process must be documented and tested locally.
 - A short setup guide explaining local development, database setup, seeding, and deployment variables in beginner-friendly language.
 
-The eventual cloud provider and programming framework are intentionally not selected in this specification. They will be chosen during implementation planning based on the desired learning path and available services.
+The first-release application uses FastAPI with Jinja templates and plain CSS. Local deployment occurs in Codespaces before the application is deployed to an Azure VM.
 
 ## 13. Future Growth Path
 
@@ -238,8 +246,11 @@ The first release is complete when:
 4. Content updates can be made through a documented seed/database workflow without changing page templates for ordinary resume updates.
 5. Unpublished records never appear on public pages.
 6. Invalid project URLs produce a not-found page.
-7. The application can be configured with development and production database settings without exposing secrets.
+7. The application can be configured with local and Azure VM SQLite database-file paths without exposing secrets or placing the production database file in the application directory.
 8. The design is responsive, keyboard navigable, and has no broken optional-content elements.
+9. When the database is unavailable, the homepage still shows a validated fallback professional profile, configured contact links, and a temporary-availability message.
+10. When the database is unavailable, no detailed experience, project, skill, or education data is rendered from a fallback source.
+11. Local setup and the Azure VM setup document the SQLite database-file location, migration/seed process, backup procedure, and restore procedure.
 
 ## 15. Decisions Recorded
 
@@ -250,8 +261,9 @@ The first release is complete when:
 | Geographic emphasis | Los Angeles area |
 | Narrative | Business need to quantifiable value |
 | Homepage strategy | Value proposition first, evidence second |
-| Content management | Seeded relational database initially |
+| Content management | Seeded SQLite database initially |
 | Initial content | Profile, experience, projects, skills, education |
 | Contact default | Public email plus LinkedIn and GitHub links |
 | Architecture | Single public, database-backed modular monolith |
-
+| First-release stack | FastAPI, Jinja templates, plain CSS, SQLite |
+| Deployment path | Codespaces first, then a single Azure VM with protected persistent SQLite storage |
