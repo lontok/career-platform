@@ -24,8 +24,21 @@ def register_sqlite_foreign_keys() -> None:
 
 register_sqlite_foreign_keys()
 
-settings = Settings()
-engine = create_engine(settings.database_url)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
-__all__ = ["SessionLocal", "engine", "register_sqlite_foreign_keys"]
+def create_session_factory(database_url: str) -> tuple[Engine, sessionmaker]:
+    database_engine = create_engine(database_url)
+    return (
+        database_engine,
+        sessionmaker(bind=database_engine, autoflush=False, expire_on_commit=False),
+    )
+
+
+settings = Settings()
+engine, SessionLocal = create_session_factory(settings.database_url)
+
+__all__ = [
+    "SessionLocal",
+    "create_session_factory",
+    "engine",
+    "register_sqlite_foreign_keys",
+]

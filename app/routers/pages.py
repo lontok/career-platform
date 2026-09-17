@@ -8,18 +8,19 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.db.session import SessionLocal
 from app.services import DatabaseUnavailableError, ResumeService
 
 router = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(
     directory=Path(__file__).resolve().parent.parent / "templates"
 )
-GENERIC_OUTAGE_MESSAGE = "Please try again later."
+GENERIC_OUTAGE_MESSAGE = (
+    "This service is temporarily unavailable. Please try again later."
+)
 
 
-def get_resume_service() -> ResumeService:
-    return ResumeService(SessionLocal)
+def get_resume_service(request: Request) -> ResumeService:
+    return ResumeService(request.app.state.session_factory)
 
 
 ResumeServiceDependency = Annotated[ResumeService, Depends(get_resume_service)]

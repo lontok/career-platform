@@ -228,9 +228,8 @@ def test_skills_and_education_pages_render_without_empty_optional_labels(
     assert "Certifications" not in education_response.text
 
 
-def test_unknown_project_returns_not_found() -> None:
-    with TestClient(create_app()) as app_client:
-        response = app_client.get("/projects/no-such-project")
+def test_unknown_project_returns_not_found(client) -> None:
+    response = client.get("/projects/no-such-project")
 
     assert response.status_code == 404
     assert "Page not found" in response.text

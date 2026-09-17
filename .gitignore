@@ -222,6 +222,18 @@ __marimo__/
 .superpowers/
 
 # Application-local state
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
 data/*.db
 data/*.db-journal
 data/*.db-shm
@@ -230,3 +242,5 @@ data/*.sqlite3
 data/*.sqlite3-journal
 data/*.sqlite3-shm
 data/*.sqlite3-wal
+data/backups/
+data/backup-verification/
