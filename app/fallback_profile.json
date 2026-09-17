@@ -1,0 +1,21 @@
+{
+  "full_name": "Alex Parker",
+  "headline": "Analytics-focused software builder for business teams",
+  "summary": "Builds dependable data products and automation that help business partners make faster, better-informed decisions.",
+  "location": "Los Angeles, CA",
+  "target_roles": [
+    "Analytics Engineer",
+    "Data Analyst",
+    "Business Systems Analyst"
+  ],
+  "contact_links": [
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/alexparker-analytics"
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/alexparker-analytics"
+    }
+  ]
+}
