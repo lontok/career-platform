@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}{{ content.profile.full_name if content.profile else "Home" }} | Career Platform{% endblock %}
+
+{% block content %}
+  <section class="page-intro">
+    {% if content.profile %}
+      <h1>{{ content.profile.full_name }}</h1>
+      <p class="eyebrow">{{ content.profile.headline }}</p>
+      {% if content.outage_message %}
+        <p class="status-banner" role="status">{{ content.outage_message }}</p>
+      {% endif %}
+      <p>{{ content.profile.summary }}</p>
+      <dl class="meta-list">
+        <div>
+          <dt>Location</dt>
+          <dd>{{ content.profile.location }}</dd>
+        </div>
+        <div>
+          <dt>Target roles</dt>
+          <dd>{{ content.profile.target_roles | join(", ") }}</dd>
+        </div>
+        {% if content.profile.email %}
+          <div>
+            <dt>Email</dt>
+            <dd><a href="mailto:{{ content.profile.email }}">{{ content.profile.email }}</a></dd>
+          </div>
+        {% endif %}
+      </dl>
+      {% if content.profile.contact_links %}
+        <ul class="inline-list" aria-label="Contact links">
+          {% for link in content.profile.contact_links %}
+            <li>
+              <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.label }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% else %}
+      <h1>Career Platform</h1>
+    {% endif %}
+  </section>
+
+  {% if not content.is_fallback %}
+    {% set impact_items = [] %}
+    {% for experience in content.experiences %}
+      {% for accomplishment in experience.accomplishments %}
+        {% if accomplishment.metric %}
+          {% set _ = impact_items.append(accomplishment) %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+    {% if impact_items %}
+      <section aria-labelledby="home-impact-heading">
+        <div class="section-heading">
+          <h2 id="home-impact-heading">Impact summary</h2>
+        </div>
+        <ul class="impact-list">
+          {% for accomplishment in impact_items %}
+            <li><strong>{{ accomplishment.metric }}</strong> — {{ accomplishment.statement }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
+    <section aria-labelledby="home-experience-heading">
+      <div class="section-heading">
+        <h2 id="home-experience-heading">Experience</h2>
+        <a href="/experience">View all experience</a>
+      </div>
+      <div class="stack">
+        {% for experience in content.experiences %}
+          <article class="card">
+            <h3>{{ experience.role_title }}</h3>
+            <p class="muted">{{ experience.organization }} · {{ experience.location }}</p>
+            <p>{{ experience.summary }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section aria-labelledby="home-projects-heading">
+      <div class="section-heading">
+        <h2 id="home-projects-heading">Featured Projects</h2>
+        <a href="/projects">View all projects</a>
+      </div>
+      <div class="card-grid">
+        {% for project in content.projects %}
+          <article class="card">
+            <h3><a href="/projects/{{ project.slug }}">{{ project.title }}</a></h3>
+            <p>{{ project.summary }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section aria-labelledby="home-skills-heading">
+      <div class="section-heading">
+        <h2 id="home-skills-heading">Skills</h2>
+        <a href="/skills">View all skills</a>
+      </div>
+      <ul class="tag-list">
+        {% for skill in content.skills %}
+          <li>{{ skill.name }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section aria-labelledby="home-education-heading">
+      <div class="section-heading">
+        <h2 id="home-education-heading">Education</h2>
+        <a href="/education">View all education</a>
+      </div>
+      <div class="stack">
+        {% for record in content.education %}
+          <article class="card">
+            <h3>{{ record.institution_name }}</h3>
+            <p>{{ record.degree_or_program }} in {{ record.field_of_study }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

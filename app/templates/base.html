@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Career Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header">
+      <div class="site-shell site-header-layout">
+        <p class="site-name"><a href="/">Career Platform</a></p>
+        <nav aria-label="Primary navigation">
+          <ul class="site-nav">
+            {% for link in nav_links %}
+              <li>
+                <a
+                  href="{{ link.href }}"
+                  {% if link.current %}aria-current="page"{% endif %}
+                >{{ link.label }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content" class="site-shell site-main">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+      <div class="site-shell">
+        <p>Career Platform</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Projects | Career Platform{% endblock %}
+
+{% block content %}
+  <h1>Projects</h1>
+  <div class="card-grid">
+    {% for project in projects %}
+      <article class="card">
+        <h2><a href="/projects/{{ project.slug }}">{{ project.title }}</a></h2>
+        <p>{{ project.summary }}</p>
+        {% if project.skills %}
+          <ul class="tag-list">
+            {% for skill in project.skills %}
+              <li>{{ skill.name }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </div>
+{% endblock %}

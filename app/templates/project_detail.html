@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} | Career Platform{% endblock %}
+
+{% block content %}
+  <article class="stack">
+    <header class="page-intro">
+      <h1>{{ project.title }}</h1>
+      <p>{{ project.summary }}</p>
+      {% if project.skills %}
+        <ul class="tag-list">
+          {% for skill in project.skills %}
+            <li>{{ skill.name }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      {% set repository_url = safe_http_url(project.repository_url) %}
+      {% set live_demo_url = safe_http_url(project.live_demo_url) %}
+      {% if repository_url or live_demo_url %}
+        <ul class="inline-list" aria-label="Project links">
+          {% if repository_url %}
+            <li>
+              <a href="{{ repository_url }}" target="_blank" rel="noopener noreferrer">Repository</a>
+            </li>
+          {% endif %}
+          {% if live_demo_url %}
+            <li>
+              <a href="{{ live_demo_url }}" target="_blank" rel="noopener noreferrer">Live demo</a>
+            </li>
+          {% endif %}
+        </ul>
+      {% endif %}
+    </header>
+
+    <section class="card">
+      <h2>Problem</h2>
+      <p>{{ project.problem }}</p>
+    </section>
+
+    <section class="card">
+      <h2>Contribution</h2>
+      <p>{{ project.contribution }}</p>
+    </section>
+
+    <section class="card">
+      <h2>Methods</h2>
+      <p>{{ project.methods }}</p>
+    </section>
+
+    {% if project.outcome %}
+      <section class="card">
+        <h2>Outcome</h2>
+        <p>{{ project.outcome }}</p>
+      </section>
+    {% endif %}
+  </article>
+{% endblock %}
