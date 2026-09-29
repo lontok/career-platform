@@ -23,7 +23,7 @@ Verify     the site answers on the VM and shows my data
 
 This is a first draft and is open to revisions. It's updated as each section runs, with a dated result line under every step.
 
-Progress: All eight sections are done as of 2026-09-29. Uvicorn is running on the VM with the laptop's database, which holds the seed's demo profile, "Alex Parker." The server won't restart after a reboot or deallocation until the systemd plan is done. Since a later change, Uvicorn listens on `0.0.0.0:8000`, and the rule `Temp-HTTP-8000` exposes it to the internet. See the Processes section.
+Progress: All eight sections are done as of 2026-09-29, plus a content refresh that replaced the demo data with Greg's resume. Uvicorn listens on `0.0.0.0:8000`, and the rule `Temp-HTTP-8000` exposes it to the internet. The server won't restart after a reboot or deallocation until the systemd plan is done.
 
 ## Global constraints
 
@@ -427,6 +427,53 @@ This process doesn't restart after a reboot. The systemd unit in `deploy/systemd
   - Check: The home, experience, projects, skills, and education pages show your records.
   - Undo: Press Ctrl+C in the tunnel's terminal.
   - Result, 2026-09-29: Port 8001 on the laptop was free. The tunnel ran in the background with `ssh -f -N -o ExitOnForwardFailure=yes`, and the five main pages returned `200` through `http://localhost:8001`. The home page title was `Alex Parker | Career Platform`, and the skills page listed SQL and Python. The tunnel was then closed with `pkill`, and port 8001 was free again. Afterward the VM database hash was unchanged and Uvicorn was still running. This check used curl, so a visual look in a browser is still open for Greg.
+
+## Content refresh, 2026-09-29
+
+Greg's resume replaced the demo content in commit `d8179a1`. The seed never runs on the VM, so the laptop database was re-seeded and copied over. Data step 2 refuses to overwrite an existing database, so the old VM file was moved aside first.
+
+- [x] Step 1: Re-seed the laptop database and make a checked copy.
+  - Runs on: laptop.
+  - Do:
+
+    ```bash
+    bash deploy/scripts/backup-sqlite.sh data/resume.db data/backups
+    uv run alembic upgrade head
+    uv run python -m app.seed
+    BACKUP_FILE=$(bash deploy/scripts/backup-sqlite.sh data/resume.db data/migration-copy)
+    shasum -a 256 "$BACKUP_FILE"
+    ```
+
+  - Why: The first backup keeps the pre-seed file. The seed writes the new content, and the second backup is the checked copy that goes to the VM.
+  - Check: The seed prints `Seeded published resume content.`, and the integrity checks inside both backups pass.
+  - Undo: Restore the pre-seed backup with `deploy/scripts/restore-sqlite.sh` into a new file, then swap it in.
+  - Result, 2026-09-29: The pre-seed backup is `data/backups/resume-20260929T221608Z-63620.db`. After the seed, the database published 1 profile, 7 experiences, 1 project, 4 skills, and 2 education records. The replaced demo rows stay in the file as unpublished. The copy is `data/migration-copy/resume-20260929T221650Z-65448.db`, hash `44b8fe5dd575d1db33d40d57860ef8f81f771ddead644b55cc50ce8f6714a5f7`.
+
+- [x] Step 2: Back up the VM database, stop the app, pull the code, and set the old file aside.
+  - Runs on: VM.
+  - Do:
+
+    ```bash
+    cd ~/career-platform
+    bash deploy/scripts/backup-sqlite.sh data/resume.db ~/career-platform-backups
+    kill "$(cat ~/uvicorn.pid)"
+    git pull --ff-only
+    mv data/resume.db "data/resume.pre-profile-$(date -u +%Y%m%dT%H%M%SZ).db"
+    test ! -e data/resume.db && echo "target is free"
+    ```
+
+  - Why: The template changes that hide empty fields only reach the VM through GitHub. Moving the old file keeps it on disk while freeing the path for the copy.
+  - Check: `pgrep -fa "uvicorn app.main:app"` prints nothing, `git log -1` shows `d8179a1`, and the last command prints `target is free`.
+  - Undo: `git checkout 52eee06`, then move the `resume.pre-profile-*` file back to `data/resume.db`.
+  - Result, 2026-09-29: The backup is `~/career-platform-backups/resume-20260929T221658Z-14056.db`. The old file is `data/resume.pre-profile-20260929T221700Z.db`, and the checkout is on `d8179a1`.
+
+- [x] Step 3: Copy the new database, check it, and restart.
+  - Runs on: laptop, then VM.
+  - Do: Run Data steps 3 and 4 with the new `BACKUP_FILE`. Then start Uvicorn as in Processes step 1, using `--host 0.0.0.0` to match the current setup.
+  - Why: This is the same checked path as the first migration, so the same hash, integrity, and schema checks apply.
+  - Check: The hashes match, the integrity check prints `ok`, and `alembic current` equals `alembic heads`. Every page returns `200`, the home page `h1` is `Greg Lontok`, and neither "Alex Parker" nor "Target roles" appears.
+  - Undo: Stop Uvicorn, move the `resume.pre-profile-*` file back, and start it again.
+  - Result, 2026-09-29: Both sides hashed to `44b8fe5dd575d1db33d40d57860ef8f81f771ddead644b55cc50ce8f6714a5f7`, and the hash was unchanged after the pages loaded. The file published 7 experiences, 2 education records, and 4 skills, and the schema was at `20260917_02 (head)`. Uvicorn listens on `0.0.0.0:8000`. The home, experience, projects, project detail, skills, education, and health pages all returned `200`, including from the laptop over the public IP.
 
 ## Rolling back the whole migration
 
