@@ -475,6 +475,14 @@ Greg's resume replaced the demo content in commit `d8179a1`. The seed never runs
   - Undo: Stop Uvicorn, move the `resume.pre-profile-*` file back, and start it again.
   - Result, 2026-09-29: Both sides hashed to `44b8fe5dd575d1db33d40d57860ef8f81f771ddead644b55cc50ce8f6714a5f7`, and the hash was unchanged after the pages loaded. The file published 7 experiences, 2 education records, and 4 skills, and the schema was at `20260917_02 (head)`. Uvicorn listens on `0.0.0.0:8000`. The home, experience, projects, project detail, skills, education, and health pages all returned `200`, including from the laptop over the public IP.
 
+- [x] Step 4: Remove the email address and refresh again.
+  - Runs on: laptop, then VM.
+  - Do: Set the seeded profile `email` to an empty string, re-run step 1 with `sqlite3 data/resume.db "VACUUM;"` after the seed, then repeat steps 2 and 3. Skip the VM backup in step 2 when the VM file's hash matches the previous laptop copy, since that copy already exists on the laptop.
+  - Why: Greg asked for the email to come off the site. `VACUUM` rewrites the file so the old address doesn't linger in free pages, and skipping the redundant VM backup avoids another file that holds it.
+  - Check: `grep -c` for the address finds nothing in the new database file. No page on the VM or over the public IP contains the address or a `mailto:` link.
+  - Undo: Stop Uvicorn, move the `resume.pre-noemail-*` file back to `data/resume.db`, and start it again.
+  - Result, 2026-09-29: Commit `65266ca` blanked the email and added a test that the seeded home page publishes no email. All 47 tests passed. The pre-seed laptop backup is `data/backups/resume-20260929T222114Z-74122.db`, and the new copy hashed to `4b3d73c1d399df37c72440132587dc00812a9de81847a4365d252dae1a9d4f72` on both sides. The VM file it replaced matched the earlier `44b8fe5d...` copy and was set aside as `data/resume.pre-noemail-20260929T222140Z.db`. Every page returned `200`, and none contained the address. The address is still in commit `d8179a1` in the public repository's history.
+
 ## Rolling back the whole migration
 
 Run the undo steps in reverse order: Verify, Processes, Data, Config, Python, Code, Packages, and Server. The laptop database is never changed by this plan, so it stays the source of truth throughout.
