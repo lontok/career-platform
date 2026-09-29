@@ -16,10 +16,12 @@
           <dt>Location</dt>
           <dd>{{ content.profile.location }}</dd>
         </div>
-        <div>
-          <dt>Target roles</dt>
-          <dd>{{ content.profile.target_roles | join(", ") }}</dd>
-        </div>
+        {% if content.profile.target_roles %}
+          <div>
+            <dt>Target roles</dt>
+            <dd>{{ content.profile.target_roles | join(", ") }}</dd>
+          </div>
+        {% endif %}
         {% if content.profile.email %}
           <div>
             <dt>Email</dt>
@@ -73,7 +75,9 @@
           <article class="card">
             <h3>{{ experience.role_title }}</h3>
             <p class="muted">{{ experience.organization }} · {{ experience.location }}</p>
-            <p>{{ experience.summary }}</p>
+            {% if experience.summary %}
+              <p>{{ experience.summary }}</p>
+            {% endif %}
           </article>
         {% endfor %}
       </div>

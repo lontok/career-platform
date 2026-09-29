@@ -299,3 +299,39 @@ def test_non_homepage_database_failures_render_generic_503(monkeypatch) -> None:
         assert response.status_code == 503
         assert "Please try again later" in response.text
         assert "Published data is unavailable" not in response.text
+
+
+def test_homepage_omits_target_roles_label_when_profile_has_none(monkeypatch) -> None:
+    content = published_homepage_content()
+    content.profile.target_roles = []
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_homepage", lambda _: content
+    )
+
+    with TestClient(create_app()) as app_client:
+        response = app_client.get("/")
+
+    assert response.status_code == 200
+    assert "Target roles" not in response.text
+    assert "Los Angeles, CA" in response.text
+
+
+def test_experience_summaries_are_omitted_when_empty(monkeypatch) -> None:
+    content = published_homepage_content()
+    content.experiences[0].summary = ""
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_homepage", lambda _: content
+    )
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_experiences",
+        lambda _: content.experiences,
+    )
+
+    with TestClient(create_app()) as app_client:
+        homepage = app_client.get("/")
+        experience_page = app_client.get("/experience")
+
+    for response in (homepage, experience_page):
+        assert response.status_code == 200
+        assert "North Star Co" in response.text
+        assert "<p></p>" not in response.text

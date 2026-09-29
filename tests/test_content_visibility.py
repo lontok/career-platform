@@ -21,6 +21,23 @@ def test_unpublished_records_never_render_in_public_html(
 def test_homepage_impact_summary_uses_published_accomplishment_metrics_only(
     client, seeded_session
 ) -> None:
+    published_experience = Experience(
+        role_title="Public Role",
+        organization="Public Organization",
+        location="Los Angeles, CA",
+        start_date=date(2026, 7, 1),
+        end_date=None,
+        is_current=True,
+        summary="Public work may be rendered.",
+        published=True,
+    )
+    published_experience.accomplishments.append(
+        ExperienceAccomplishment(
+            statement="Automated weekly KPI reporting.",
+            metric="6 hours saved per week",
+        )
+    )
+    seeded_session.add(published_experience)
     unpublished_experience = Experience(
         role_title="Private Role",
         organization="Private Organization",

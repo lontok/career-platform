@@ -22,7 +22,9 @@
             {% endif %}
           </p>
         </header>
-        <p>{{ experience.summary }}</p>
+        {% if experience.summary %}
+          <p>{{ experience.summary }}</p>
+        {% endif %}
         {% if experience.accomplishments %}
           <ul class="detail-list">
             {% for accomplishment in experience.accomplishments %}

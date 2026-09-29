@@ -64,7 +64,9 @@ Do not commit SQLite database files. Keep local SQLite database files under `dat
 uv run python -m app.seed
 ```
 
-The seed command validates `app/fallback_profile.json` before writing and then inserts or updates representative published records for the profile, experience, project, skill, and education tables. Re-running it is safe and keeps the demo data idempotent.
+The seed command validates `app/fallback_profile.json` before writing and then inserts or updates Greg Lontok's published resume records for the profile, experience, project, skill, and education tables. Records removed from the seed data are unpublished, not deleted. Re-running it is safe and idempotent.
+
+Empty optional text stays off the page. A profile with no target roles hides that label, and an experience with an empty summary shows no summary paragraph.
 
 ## Update resume content safely
 
