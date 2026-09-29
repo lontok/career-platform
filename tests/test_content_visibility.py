@@ -63,3 +63,13 @@ def test_homepage_impact_summary_uses_published_accomplishment_metrics_only(
     assert "Impact summary" in response.text
     assert "6 hours saved per week" in response.text
     assert "99% private impact" not in response.text
+
+
+def test_seeded_homepage_does_not_publish_an_email_address(
+    client, seeded_session
+) -> None:
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "mailto:" not in response.text
+    assert "<dt>Email</dt>" not in response.text

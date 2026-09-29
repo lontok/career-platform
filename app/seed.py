@@ -35,7 +35,7 @@ SEED_PROFILE = {
     ),
     "location": "Los Angeles Metropolitan Area",
     "target_roles": "",
-    "email": "greglontok@gmail.com",
+    "email": "",
     "linkedin_url": "https://www.linkedin.com/in/lontok",
     "github_url": "https://github.com/lontok",
     "published": True,
