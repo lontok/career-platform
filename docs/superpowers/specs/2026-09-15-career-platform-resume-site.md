@@ -61,7 +61,7 @@ The homepage is the primary recruiter experience. It contains, in this order:
 4. **Selected projects:** A concise preview of selected projects, with a link to all projects.
 5. **Skills preview:** A grouped snapshot of capabilities.
 6. **Education preview:** Most relevant education and certifications.
-7. **Contact links:** Professional links, including LinkedIn and GitHub, plus an email link.
+7. **Contact links:** Professional links, including LinkedIn and GitHub. The profile email is stored but not shown on the site.
 
 ### 5.2 Detail and listing pages
 
@@ -263,7 +263,7 @@ The first release is complete when:
 | Homepage strategy | Value proposition first, evidence second |
 | Content management | Seeded SQLite database initially |
 | Initial content | Profile, experience, projects, skills, education |
-| Contact default | Public email plus LinkedIn and GitHub links |
+| Contact default | LinkedIn and GitHub links, with no email shown |
 | Architecture | Single public, database-backed modular monolith |
 | First-release stack | FastAPI, Jinja templates, plain CSS, SQLite |
 | Deployment path | Codespaces first, then a single Azure VM with protected persistent SQLite storage |

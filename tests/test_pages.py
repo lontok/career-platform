@@ -164,6 +164,20 @@ def test_homepage_renders_profile_navigation_and_featured_sections(monkeypatch) 
     assert "State University" in response.text
 
 
+def test_homepage_does_not_show_profile_email(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_homepage",
+        lambda _: published_homepage_content(),
+    )
+
+    with TestClient(create_app()) as app_client:
+        response = app_client.get("/")
+
+    assert response.status_code == 200
+    assert "alex.parker@example.com" not in response.text
+    assert "mailto:" not in response.text
+
+
 def test_experience_page_renders_experience_content(monkeypatch) -> None:
     monkeypatch.setattr(
         "app.services.resume.ResumeService.get_experiences",

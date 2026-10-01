@@ -20,12 +20,6 @@
           <dt>Target roles</dt>
           <dd>{{ content.profile.target_roles | join(", ") }}</dd>
         </div>
-        {% if content.profile.email %}
-          <div>
-            <dt>Email</dt>
-            <dd><a href="mailto:{{ content.profile.email }}">{{ content.profile.email }}</a></dd>
-          </div>
-        {% endif %}
       </dl>
       {% if content.profile.contact_links %}
         <ul class="inline-list" aria-label="Contact links">
