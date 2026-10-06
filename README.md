@@ -33,6 +33,7 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 With the server running, manually inspect `/`, `/experience`, `/projects`, a
 valid project URL such as `/projects/career-platform`, `/skills`, `/education`,
+`/contact` (submit it once empty and once filled in),
 `/health`, and an invalid project URL. Also perform a backup and restore drill
 without using an existing target:
 
@@ -71,6 +72,10 @@ Target roles are optional. Leave `target_roles` empty when the site shouldn't re
 Seeding refuses to write when the profile's headline, summary, or location is blank. The fallback profile follows the same rule. The home page leads with the headline and summary, so a blank one leaves the first screen empty.
 
 Seeding also unpublishes every other profile and publishes the one in `app/seed.py`. If your database holds a profile you added another way, running the seed replaces it on the public site.
+
+## Contact form
+
+`/contact` shows a form with Name, Email, and Message. It posts to `/contact`, checks each field, and shows the sender what they submitted. Nothing is saved or emailed yet, and the confirmation page says so. Jinja escapes every value, so HTML typed into the form displays as plain text.
 
 ## How the home page chooses what to show
 

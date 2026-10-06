@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% macro field(id, label, type="text", autocomplete=None, textarea=False) -%}
+  {% set error = errors.get(id) %}
+  <div class="form-field{% if error %} has-error{% endif %}">
+    <label for="contact-{{ id }}">{{ label }}</label>
+    {% if error %}
+      <p class="field-error" id="contact-{{ id }}-error">{{ error }}</p>
+    {% endif %}
+    {% if textarea %}
+      <textarea
+        id="contact-{{ id }}"
+        name="{{ id }}"
+        rows="8"
+        maxlength="{{ limits[id] }}"
+        required
+        {% if error %}aria-invalid="true" aria-describedby="contact-{{ id }}-error"{% endif %}
+      >{{ values.get(id, "") }}</textarea>
+    {% else %}
+      <input
+        id="contact-{{ id }}"
+        name="{{ id }}"
+        type="{{ type }}"
+        value="{{ values.get(id, "") }}"
+        maxlength="{{ limits[id] }}"
+        {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+        required
+        {% if error %}aria-invalid="true" aria-describedby="contact-{{ id }}-error"{% endif %}
+      >
+    {% endif %}
+  </div>
+{%- endmacro %}
+
+{% block title %}Contact | {{ site_name }}{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <h1>Contact</h1>
+    <p class="lede">Send a message to {{ site_name }}.</p>
+  </header>
+
+  {% if errors %}
+    <p class="status-note" role="alert">Check the highlighted fields and try again.</p>
+  {% endif %}
+
+  <form class="contact-form" method="post" action="/contact" novalidate>
+    {{ field("name", "Name", autocomplete="name") }}
+    {{ field("email", "Email", type="email", autocomplete="email") }}
+    {{ field("message", "Message", textarea=True) }}
+    <div class="form-actions">
+      <button class="button" type="submit">Submit</button>
+    </div>
+  </form>
+{% endblock %}

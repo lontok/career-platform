@@ -5,12 +5,17 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.core.urls import normalize_http_url
 from app.services import DatabaseUnavailableError, ResumeService
+from app.services.contact import (
+    CONTACT_FIELD_LIMITS,
+    clean_contact_values,
+    validate_contact,
+)
 from app.services.resume import role_note
 from app.services.timeline import build_timeline, experience_anchor
 
@@ -79,6 +84,13 @@ def _navigation(
                 },
             ]
         )
+    items.append(
+        {
+            "label": "Contact",
+            "href": str(request.url_for("contact_page")),
+            "current": request.url.path == "/contact",
+        }
+    )
     return items
 
 
@@ -253,5 +265,42 @@ def education_page(
         request,
         "education.html",
         {"education_records": education},
+        site_name=service.get_site_name(),
+    )
+
+
+@router.get("/contact", response_class=HTMLResponse, name="contact_page")
+def contact_page(request: Request, service: ResumeServiceDependency) -> HTMLResponse:
+    return _render(
+        request,
+        "contact.html",
+        {"values": {}, "errors": {}, "limits": CONTACT_FIELD_LIMITS},
+        site_name=service.get_site_name(),
+    )
+
+
+@router.post("/contact", response_class=HTMLResponse, name="contact_submit")
+def contact_submit(
+    request: Request,
+    service: ResumeServiceDependency,
+    name: Annotated[str, Form()] = "",
+    email: Annotated[str, Form()] = "",
+    message: Annotated[str, Form()] = "",
+) -> HTMLResponse:
+    # Submissions are shown back to the sender only. Nothing is stored or emailed yet.
+    values = clean_contact_values(name, email, message)
+    errors = validate_contact(values)
+    if errors:
+        return _render(
+            request,
+            "contact.html",
+            {"values": values, "errors": errors, "limits": CONTACT_FIELD_LIMITS},
+            site_name=service.get_site_name(),
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    return _render(
+        request,
+        "contact_received.html",
+        {"values": values},
         site_name=service.get_site_name(),
     )

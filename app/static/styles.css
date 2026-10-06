@@ -25,6 +25,8 @@
   --note-wash: #fff4e5;
   --note-rule: #e2b071;
   --note-ink: #6b3300;
+  --field-border: #76869a;
+  --error: #b42318;
 
   --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
 
@@ -77,6 +79,7 @@ html {
 body {
   display: grid;
   grid-template-rows: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
   min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
@@ -796,6 +799,94 @@ a:hover {
   font-size: 0.9375rem;
 }
 
+/* Contact form */
+
+.page-head + .status-note {
+  margin-top: var(--space-6);
+}
+
+.contact-form {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 40rem;
+  margin-top: var(--space-6);
+}
+
+.form-field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.form-field label {
+  font-weight: 650;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  color: var(--ink);
+  font: inherit;
+  background: var(--paper);
+  border: 1px solid var(--field-border);
+  border-radius: 4px;
+}
+
+.form-field textarea {
+  min-height: 10rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.form-field input:hover,
+.form-field textarea:hover {
+  border-color: var(--ink-soft);
+}
+
+.form-field input:focus-visible,
+.form-field textarea:focus-visible {
+  border-color: var(--ink);
+}
+
+.form-field.has-error input,
+.form-field.has-error textarea {
+  border-color: var(--error);
+  border-width: 2px;
+}
+
+.field-error {
+  color: var(--error);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.form-actions {
+  padding-top: var(--space-2);
+}
+
+.form-actions .button {
+  font: inherit;
+  font-weight: 620;
+  cursor: pointer;
+}
+
+.message-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.case-table dd {
+  overflow-wrap: anywhere;
+}
+
+.page-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin-top: var(--space-6);
+}
+
 /* Inner page heads */
 
 .page-head {
@@ -831,8 +922,26 @@ a:hover {
     align-items: flex-start;
   }
 
+  /* Six links don't fit one row at phone width, so the row scrolls sideways
+     instead of wrapping a lone link onto a second line. */
+  nav[aria-label="Primary navigation"] {
+    align-self: stretch;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Room so keyboard focus rings aren't clipped by the scroll container. */
+    margin: -0.5rem;
+    padding: 0.5rem;
+  }
+
   .site-nav {
+    flex-wrap: nowrap;
     column-gap: var(--space-4);
+  }
+
+  .site-nav a {
+    white-space: nowrap;
   }
 
   .site-nav a {
