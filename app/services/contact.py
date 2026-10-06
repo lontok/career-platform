@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import re
 
-CONTACT_FIELD_LIMITS = {"name": 200, "email": 320, "message": 5000}
+# 254 is the longest address mail servers accept (RFC 5321).
+CONTACT_FIELD_LIMITS = {"name": 100, "email": 254, "message": 5000}
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 _MISSING_MESSAGES = {
@@ -24,7 +25,7 @@ def validate_contact(values: dict[str, str]) -> dict[str, str]:
         if not value:
             errors[field] = _MISSING_MESSAGES[field]
         elif len(value) > limit:
-            errors[field] = f"Keep your {field} under {limit} characters."
+            errors[field] = f"{field.capitalize()} must be {limit} characters or fewer."
     if "email" not in errors and not EMAIL_PATTERN.match(values["email"]):
         errors["email"] = "Enter a valid email address."
     return errors

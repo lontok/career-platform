@@ -75,7 +75,7 @@ Seeding also unpublishes every other profile and publishes the one in `app/seed.
 
 ## Contact form
 
-`/contact` shows a form with Name, Email, and Message. It posts to `/contact`, checks each field, and shows the sender what they submitted. Nothing is saved or emailed yet, and the confirmation page says so. Jinja escapes every value, so HTML typed into the form displays as plain text.
+`/contact` shows a form with Name, Email, and Message. It posts to `/contact`, checks each field, and shows the sender what they submitted. Nothing is saved or emailed yet, and the confirmation page says so. Jinja escapes every value, so HTML typed into the form displays as plain text. Names can be up to 100 characters, email addresses up to 254, and messages up to 5000. The limits live in `app/services/contact.py`, and the form's `maxlength` attributes read from the same values.
 
 ## How the home page chooses what to show
 
