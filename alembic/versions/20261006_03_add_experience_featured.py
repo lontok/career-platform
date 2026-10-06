@@ -18,18 +18,20 @@ branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
 
+# Batch mode would rebuild the table by dropping the old one, and with foreign
+# keys on, that drop cascades to experience_accomplishments and
+# experience_skills. A plain ADD COLUMN changes the table in place.
 def upgrade() -> None:
-    with op.batch_alter_table("experiences") as batch_op:
-        batch_op.add_column(
-            sa.Column(
-                "featured",
-                sa.Boolean(),
-                server_default=sa.false(),
-                nullable=False,
-            )
-        )
+    op.add_column(
+        "experiences",
+        sa.Column(
+            "featured",
+            sa.Boolean(),
+            server_default=sa.false(),
+            nullable=False,
+        ),
+    )
 
 
 def downgrade() -> None:
-    with op.batch_alter_table("experiences") as batch_op:
-        batch_op.drop_column("featured")
+    op.execute("ALTER TABLE experiences DROP COLUMN featured")

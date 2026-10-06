@@ -94,6 +94,8 @@ The executive summary lists up to four accomplishments that have a `metric`, in 
 
 Ordinary resume content updates should stay in the database seed and fallback data files; they must not require template edits.
 
+Avoid `op.batch_alter_table` in migrations for any table that other tables point to, such as `experiences`, `skills`, or `projects`. On SQLite, batch mode rebuilds the table by dropping the old one. Migrations run with foreign keys on, so that drop deletes every linked row in tables declared `ON DELETE CASCADE`, such as accomplishments and skill links. Use `op.add_column`, which changes the table in place. `tests/test_migrations.py` upgrades a database that holds linked rows and fails if any go missing.
+
 ## Manual accessibility smoke checks
 
 Before publishing a content update, confirm:
