@@ -61,7 +61,11 @@ ROW_KEYS = [
     ("skills", "skill:affiliate-marketing", "name = 'Affiliate Marketing'"),
     ("skills", "skill:social-media-marketing", "name = 'Social Media Marketing'"),
     ("skills", "skill:sem", "name = 'SEM'"),
-    ("skills", "skill:professional-scrum-master-i", "name = 'Professional Scrum Master I (PSM I)'"),
+    (
+        "skills",
+        "skill:professional-scrum-master-i",
+        "name = 'Professional Scrum Master I (PSM I)'",
+    ),
     (
         "education",
         "education:regis-university:data-science-ms",

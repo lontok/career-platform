@@ -90,21 +90,35 @@ def test_seed_demo_content_creates_published_records_and_is_idempotent(
     seed_module.seed_demo_content(session_factory=session_factory)
 
     with session_factory() as session:
+        expected_accomplishments = sum(
+            len(experience["accomplishments"])
+            for experience in seed_module.SEED_EXPERIENCES
+        )
         assert session.scalar(select(func.count()).select_from(Profile)) == 1
-        assert session.scalar(select(func.count()).select_from(Experience)) == 1
+        assert session.scalar(select(func.count()).select_from(Experience)) == len(
+            seed_module.SEED_EXPERIENCES
+        )
         assert (
             session.scalar(select(func.count()).select_from(ExperienceAccomplishment))
-            == 1
+            == expected_accomplishments
         )
-        assert session.scalar(select(func.count()).select_from(Project)) == 1
-        assert session.scalar(select(func.count()).select_from(Skill)) >= 1
-        assert session.scalar(select(func.count()).select_from(Education)) == 1
+        assert session.scalar(select(func.count()).select_from(Project)) == len(
+            seed_module.SEED_PROJECTS
+        )
+        assert session.scalar(select(func.count()).select_from(Skill)) == len(
+            seed_module.SEED_SKILLS
+        )
+        assert session.scalar(select(func.count()).select_from(Education)) == len(
+            seed_module.SEED_EDUCATION
+        )
 
         profile = session.execute(
             select(Profile).where(Profile.published.is_(True))
         ).scalar_one()
         project = session.execute(
-            select(Project).where(Project.published.is_(True))
+            select(Project).where(
+                Project.seed_key == seed_module.SEED_PROJECTS[0]["seed_key"]
+            )
         ).scalar_one()
 
         assert profile.full_name == seed_module.SEED_PROFILE["full_name"]
@@ -120,7 +134,7 @@ def test_seed_updates_stable_records_when_profile_email_and_experience_date_chan
 
     changed_profile = {
         **seed_module.SEED_PROFILE,
-        "email": "alex.parker.updated@example.com",
+        "email": "updated@example.com",
     }
     changed_experiences = deepcopy(seed_module.SEED_EXPERIENCES)
     changed_experiences[0]["start_date"] = date(2026, 7, 1)
@@ -129,22 +143,30 @@ def test_seed_updates_stable_records_when_profile_email_and_experience_date_chan
 
     seed_module.seed_demo_content(session_factory=session_factory)
 
+    changed_seed_key = changed_experiences[0]["seed_key"]
+
     with session_factory() as session:
         profiles = session.scalars(select(Profile).order_by(Profile.id)).all()
         experiences = session.scalars(select(Experience).order_by(Experience.id)).all()
 
         assert [(profile.email, profile.published) for profile in profiles] == [
-            ("alex.parker.updated@example.com", True)
+            ("updated@example.com", True)
+        ]
+        assert len(experiences) == len(changed_experiences)
+        changed = [
+            experience
+            for experience in experiences
+            if experience.seed_key == changed_seed_key
         ]
         assert [
-            (experience.start_date, experience.published) for experience in experiences
+            (experience.start_date, experience.published) for experience in changed
         ] == [(date(2026, 7, 1), True)]
 
     homepage = ResumeService(session_factory=session_factory).get_homepage()
     assert homepage.profile is not None
-    assert homepage.profile.email == "alex.parker.updated@example.com"
-    assert [experience.start_date for experience in homepage.experiences] == [
-        date(2026, 7, 1)
+    assert homepage.profile.email == "updated@example.com"
+    assert date(2026, 7, 1) in [
+        experience.start_date for experience in homepage.experiences
     ]
 
 

@@ -64,7 +64,7 @@ Do not commit SQLite database files. Keep local SQLite database files under `dat
 uv run python -m app.seed
 ```
 
-The seed command validates `app/fallback_profile.json` before writing and then inserts or updates the site owner's published records for the profile, experience, project, skill, and education tables. Re-running it is safe and doesn't create duplicates. Tests use the fictional sample in `tests/seed_samples.py` instead.
+The seed command validates `app/fallback_profile.json` before writing and then inserts or updates the site owner's published records for the profile, experience, project, skill, and education tables. Records removed from the seed data are unpublished, not deleted. Re-running it is safe and doesn't create duplicates. Tests use the fictional sample in `tests/seed_samples.py` instead.
 
 Target roles are optional. Leave `target_roles` empty when the site shouldn't read as a job search, and the home page omits them.
 
