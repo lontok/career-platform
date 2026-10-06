@@ -99,24 +99,6 @@ def build_timeline(
     )
 
 
-def describe_span(
-    experiences: Sequence[Experience], *, today: date | None = None
-) -> str:
-    """Summarize a career as a role count and year span, such as "7 roles across 26 years"."""
-    if not experiences:
-        return ""
-
-    today = today or _today()
-    first_start = min(experience.start_date for experience in experiences)
-    last_end = max(_end_date(experience, today) for experience in experiences)
-    years = max(1, round((last_end - first_start).days / 365.25))
-    roles = len(experiences)
-    return (
-        f"{roles} role{'' if roles == 1 else 's'} across "
-        f"{years} year{'' if years == 1 else 's'}"
-    )
-
-
 def _end_date(experience: Experience, today: date) -> date:
     return experience.end_date or today
 

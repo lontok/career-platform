@@ -1,6 +1,6 @@
 ---
 name: Career Platform resume site
-description: A resume set as a strategy-firm document, with action titles over captioned, sourced exhibits.
+description: A resume set as a quiet strategy-firm document, with plain section labels over exhibits and record lists.
 colors:
   paper: "#ffffff"
   wash: "#f2f5f8"
@@ -143,15 +143,15 @@ components:
 
 **Creative North Star: "The Strategy Deck"**
 
-The site reads like a document from a strategy firm. Each section opens with an action title, which is a full sentence stating a finding computed from the database. The evidence sits under it as an exhibit with a caption and a source line naming the records it came from. The reader should be able to skim the titles alone and still get the argument.
+The site reads like a document from a strategy firm, in its structure rather than its voice. Each section opens with a plain label, and the evidence sits under it as an exhibit or a record list. The copy stays factual and modest: no count headlines, no calls to action, and no lines about how the site itself works.
 
 The page is white paper with deep navy ink, cool gray hairline rules, and a pale wash behind each exhibit. Two colors have narrow jobs. Teal marks emphasis inside exhibits, and burnt orange marks the things you can press. Archivo carries every word, and its width axis does the work that a second typeface would do elsewhere. Titles run semi-condensed and heavy, while body text runs at regular width.
 
 Density is moderate and editorial. Rules separate rows, a 3px navy rule closes the title block, and nothing floats. The build rejects the old default look: system-ui type, slate palette, cards, pills, and a name hero over equal tiles.
 
 **Key Characteristics:**
-- Computed action titles, never labels, on every section that has data
-- Exhibits with a caption on top and a "Source:" line at the foot
+- Plain section labels, such as "Experience" and "Selected results"
+- Exhibits with a caption on top where a caption adds information
 - One shared first column for dates, timeline labels, and figures
 - Archivo width contrast, with titles at wdth 82 to 92 and body at 100
 - Tabular, lining figures wherever numbers align
@@ -175,7 +175,7 @@ A cool navy-on-white document palette with one teal data ink and one burnt-orang
 - **Exhibit Wash** (wash): The flat fill behind every exhibit.
 - **Deep Navy Ink** (ink): Headings, body text, the focus ring, and the "today" marker. Rule-strong carries the same navy for the 3px title rule, the exhibit top edge, and skill-column heads.
 - **Slate Ink** (ink-soft): Bylines, ledes, record meta, nav links at rest.
-- **Muted Slate** (muted): Dates, source lines, axis ticks, and dt labels. It holds 5.37:1 on the wash.
+- **Muted Slate** (muted): Dates, axis ticks, and dt labels. It holds 5.37:1 on the wash.
 - **Hairline Gray** (rule): Row dividers, byline dividers, gridlines, and header and footer borders.
 - **Bar Gray** (bar-other): Non-featured timeline bars and their key swatch.
 
@@ -195,12 +195,12 @@ A cool navy-on-white document palette with one teal data ink and one burnt-orang
 
 ### Hierarchy
 - **Display** (760, wdth 82, step 4 clamp, 1.02): The home action title, capped at 48rem. Headlines over 72 characters drop to step 3 with the max width at 56rem.
-- **Headline** (720, wdth 85, step 3 clamp, 1.12): Section action titles, capped at 30ch. Inner page h1s use step 3 at weight 760, wdth 82, and line height 1.02.
+- **Headline** (720, wdth 85, step 3 clamp, 1.12): Section titles, capped at 30ch. Inner page h1s use step 3 at weight 760, wdth 82, and line height 1.02.
 - **Finding** (400, step 2 clamp, 1.3): Executive-summary statements, capped at 52ch, with the metric inline in teal.
 - **Title** (680, wdth 92, 1.25rem): Record titles for roles, projects, and schools.
 - **Lede** (400, 1.25rem, 1.5): Summaries and the byline. Both drop to body size under 48rem.
 - **Body** (400, wdth 100, 1.0625rem, 1.55): Running text, with paragraphs capped at 68ch.
-- **Label** (680, 0.875rem): Exhibit captions. Source lines and dt labels use the same size in muted slate.
+- **Label** (680, 0.875rem): Exhibit captions. Dt labels use the same size in muted slate.
 - **Meta** (0.9375rem, tabular): Record periods, nav links, tags, and timeline role names.
 - **Axis** (0.8125rem, tabular): Timeline ticks and timeline meta lines.
 
@@ -213,7 +213,7 @@ A cool navy-on-white document palette with one teal data ink and one burnt-orang
 
 The page is one centered shell, 76rem wide, with a fluid gutter. Header, main, and footer sit in a three-row grid so the footer stays at the bottom on short pages.
 
-Every section follows the same grammar. A computed action title comes first, with an optional text link at right in the section head. The exhibit or record list follows. Sections are spaced 4.5rem apart, and items inside a section are spaced 1.5rem apart.
+Every section follows the same grammar. A plain section label comes first, with an optional text link at right in the section head. The exhibit or record list follows. Sections are spaced 4.5rem apart, and items inside a section are spaced 1.5rem apart.
 
 Records, case tables, and detail tables share one first column, the label width of 16rem, then a 2rem gap and the content. Exhibits are padded by 1.5rem, so content inside them uses an exhibit label that is 1.5rem narrower and still lands on the same left edge. Between 48rem and 64rem the label width tightens to 11rem. Under 48rem every two-column row stacks into one column and the header nav wraps below the name.
 
@@ -251,7 +251,7 @@ Inline links are burnt orange, underlined at 0.07em with a 0.2em offset. Hover d
 The candidate's name sits at top left (step 1, weight 760, wdth 88). Nav links sit at right in slate ink at 0.9375rem and weight 520. Hover turns them navy with a gray 2px underline. The current page is navy with a navy 2px underline. Under 48rem the nav drops below the name at 0.875rem.
 
 ### Exhibit
-The signature container. It has a pale wash fill, a 1px navy top edge, and a 1.5rem pad. A caption in bold label type sits at top, with an optional key at right. A "Source:" line in muted label type sits at the foot above a hairline, naming the records and, where it applies, the count (n=).
+The signature container. It has a pale wash fill, a 1px navy top edge, and a 1.5rem pad. A caption in bold label type sits at top, with an optional key at right.
 
 ### Record row
 A two-column row of a period in muted tabular meta, then a body of title, meta line, and one result or summary. Rows divide on hairlines. Every role row carries a result or summary, so no row is bare.
@@ -270,8 +270,8 @@ Stylesheet and script URLs carry a 10-character SHA-256 content hash of the two 
 ## Do's and Don'ts
 
 ### Do:
-- Do write each section title as a sentence computed from records, such as "4 measured results from 4 organizations."
-- Do put evidence in an exhibit with a caption and a "Source:" line that names the records.
+- Do label sections plainly ("Experience," "Skills") and link to detail pages with "All experience," "All skills," and so on.
+- Don't write count headlines, link labels that sell ("with results"), closing pitches ("Next steps," "Reach Greg on..."), or lines about how the site is built. The owner wants the copy modest and free of anything that reads as boasting or salesy.
 - Do start every row on the shared label column, and give the timeline its own 20rem column at 64rem and up.
 - Do set metrics in bold teal with tabular, lining figures.
 - Do keep titles at wdth 82 to 92 and body text at wdth 100.
@@ -284,6 +284,6 @@ Stylesheet and script URLs carry a 10-character SHA-256 content hash of the two 
 - Don't use teal outside an exhibit or a result line.
 - Don't use cards, drop shadows, or rounded panels. Use rules and the wash.
 - Don't render skills as pills or tags. Use plain lists under a navy-ruled category head.
-- Don't put an eyebrow or kicker label above a heading. The action title opens the section.
+- Don't put an eyebrow or kicker label above a heading. The section label opens the section.
 - Don't type derived numbers, such as counts or year spans, into templates. Compute them from records.
 - Don't add a second typeface or swap back to system-ui.

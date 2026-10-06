@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date
 
 from app.models import Experience
-from app.services.timeline import build_timeline, describe_span
+from app.services.timeline import build_timeline
 
 
 def _role(title: str, start: date, end: date | None, *, featured: bool = False):
@@ -58,14 +58,3 @@ def test_build_timeline_keeps_short_roles_visible() -> None:
 
     assert timeline is not None
     assert min(row.width for row in timeline.rows) >= 1
-
-
-def test_describe_span_counts_roles_and_years() -> None:
-    roles = [
-        _role("Current", date(2000, 3, 1), None),
-        _role("Earlier", date(1998, 6, 1), date(2000, 2, 1)),
-    ]
-
-    assert describe_span(roles, today=date(2026, 10, 6)) == "2 roles across 28 years"
-    assert describe_span(roles[:1], today=date(2000, 9, 1)) == "1 role across 1 year"
-    assert describe_span([], today=date(2026, 10, 6)) == ""

@@ -445,14 +445,6 @@ a:hover {
   border-left: 2px dotted var(--ink);
 }
 
-.exhibit-source {
-  max-width: none;
-  padding-top: var(--space-3);
-  color: var(--muted);
-  font-size: var(--step--1);
-  border-top: 1px solid var(--rule);
-}
-
 .figure {
   color: var(--data);
   font-weight: 700;

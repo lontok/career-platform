@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import plural, period, contact_actions, education_finding %}
+{% from "_macros.html" import period, contact_actions %}
 
 {% block title %}{{ site_name }}{% endblock %}
 
@@ -32,9 +32,8 @@
   {% if not content.is_fallback %}
     {% if content.highlights %}
       <section class="section" aria-labelledby="home-impact-heading">
-        <h2 id="home-impact-heading" class="section-title">{{ plural(content.highlights | length, "measured result") }} from {{ plural(highlight_organization_count, "organization") }}</h2>
+        <h2 id="home-impact-heading" class="section-title">Selected results</h2>
         <figure class="exhibit">
-          <figcaption class="exhibit-caption">Selected results</figcaption>
           <ol class="findings">
             {% for highlight in content.highlights %}
               <li class="finding">
@@ -43,7 +42,6 @@
               </li>
             {% endfor %}
           </ol>
-          <p class="exhibit-source">Source: accomplishment metrics in published experience records.</p>
         </figure>
       </section>
     {% endif %}
@@ -51,8 +49,8 @@
     {% if content.experiences %}
       <section class="section" aria-labelledby="home-experience-heading">
         <div class="section-head">
-          <h2 id="home-experience-heading" class="section-title">{{ career_span }}</h2>
-          <a class="text-link" href="/experience">All {{ plural(content.experience_count, "role") }}, with results</a>
+          <h2 id="home-experience-heading" class="section-title">Experience</h2>
+          <a class="text-link" href="/experience">All experience</a>
         </div>
         {% if timeline %}
           {% include "_timeline.html" %}
@@ -78,7 +76,7 @@
     {% if content.projects %}
       <section class="section" aria-labelledby="home-projects-heading">
         <div class="section-head">
-          <h2 id="home-projects-heading" class="section-title">{{ plural(content.projects | length, "featured project") }}, from business problem to outcome</h2>
+          <h2 id="home-projects-heading" class="section-title">Projects</h2>
           <a class="text-link" href="/projects">All projects</a>
         </div>
         <ol class="record-list">
@@ -111,8 +109,8 @@
     {% if skill_groups %}
       <section class="section" aria-labelledby="home-skills-heading">
         <div class="section-head">
-          <h2 id="home-skills-heading" class="section-title">{{ plural(content.skills | length, "skill") }} across {{ plural(skill_groups | length, "area") }}</h2>
-          <a class="text-link" href="/skills">Skills with context</a>
+          <h2 id="home-skills-heading" class="section-title">Skills</h2>
+          <a class="text-link" href="/skills">All skills</a>
         </div>
         <div class="skill-columns">
           {% for category, skills in skill_groups %}
@@ -132,8 +130,8 @@
     {% if content.education %}
       <section class="section" aria-labelledby="home-education-heading">
         <div class="section-head">
-          <h2 id="home-education-heading" class="section-title">{{ education_finding(content.education) }}</h2>
-          <a class="text-link" href="/education">Education details</a>
+          <h2 id="home-education-heading" class="section-title">Education</h2>
+          <a class="text-link" href="/education">All education</a>
         </div>
         <ol class="record-list">
           {% for record in content.education %}
@@ -151,8 +149,7 @@
 
     {% if profile and profile.contact_links %}
       <section class="section closing" aria-labelledby="home-next-heading">
-        <h2 id="home-next-heading" class="section-title">Next steps</h2>
-        <p class="lede">Reach {{ profile.full_name.split(" ")[0] }} on {{ profile.contact_links | map(attribute="label") | join(" or ") }}.</p>
+        <h2 id="home-next-heading" class="section-title">Contact</h2>
         {{ contact_actions(profile.contact_links) }}
       </section>
     {% endif %}

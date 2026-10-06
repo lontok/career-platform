@@ -1,7 +1,3 @@
-{% macro plural(count, word, plural_word=None) -%}
-  {{ count }} {{ word if count == 1 else (plural_word or word ~ "s") }}
-{%- endmacro %}
-
 {% macro period(record) -%}
   {{ record.start_date.strftime("%b %Y") }} to {{ record.end_date.strftime("%b %Y") if record.end_date else "Present" }}
 {%- endmacro %}
@@ -20,9 +16,4 @@
       </li>
     {% endfor %}
   </ul>
-{%- endmacro %}
-
-{% macro education_finding(records) -%}
-  {%- set latest = (records | sort(attribute="start_date", reverse=True))[0] -%}
-  {{ plural(records | length, "program") }}, most recently {{ latest.degree_or_program }}{% if latest.field_of_study %} in {{ latest.field_of_study }}{% endif %} at {{ latest.institution_name }}
 {%- endmacro %}

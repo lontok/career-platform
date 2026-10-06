@@ -1,14 +1,12 @@
 {% extends "base.html" %}
-{% from "_macros.html" import period, education_finding %}
+{% from "_macros.html" import period %}
 
 {% block title %}Education | {{ site_name }}{% endblock %}
 
 {% block content %}
   <header class="page-head">
-    {% if education_records %}
-      <h1>{{ education_finding(education_records) }}</h1>
-    {% else %}
-      <h1>Education</h1>
+    <h1>Education</h1>
+    {% if not education_records %}
       <p class="lede">No education is published yet.</p>
     {% endif %}
   </header>

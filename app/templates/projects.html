@@ -1,14 +1,11 @@
 {% extends "base.html" %}
-{% from "_macros.html" import plural %}
 
 {% block title %}Projects | {{ site_name }}{% endblock %}
 
 {% block content %}
   <header class="page-head">
-    {% if projects %}
-      <h1>{{ plural(projects | length, "published project") }}, each traced from business problem to outcome</h1>
-    {% else %}
-      <h1>Projects</h1>
+    <h1>Projects</h1>
+    {% if not projects %}
       <p class="lede">No projects are published yet.</p>
     {% endif %}
   </header>

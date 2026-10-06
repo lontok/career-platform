@@ -1,15 +1,11 @@
 {% extends "base.html" %}
-{% from "_macros.html" import plural %}
 
 {% block title %}Skills | {{ site_name }}{% endblock %}
 
 {% block content %}
   <header class="page-head">
-    {% if skill_groups %}
-      <h1>{{ plural(skill_count, "skill") }} across {{ plural(skill_groups | length, "area") }}</h1>
-      <p class="lede">Each skill lists the context where it was used.</p>
-    {% else %}
-      <h1>Skills</h1>
+    <h1>Skills</h1>
+    {% if not skill_groups %}
       <p class="lede">No skills are published yet.</p>
     {% endif %}
   </header>

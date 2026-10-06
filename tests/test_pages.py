@@ -147,7 +147,6 @@ def test_homepage_renders_fallback_for_database_failure(monkeypatch) -> None:
 
     assert response.status_code == 200
     assert "temporarily unavailable" in response.text
-    assert "comes from a published resume record" not in response.text
     assert 'id="home-impact-heading"' not in response.text
     assert "Experience" not in response.text
 
@@ -170,7 +169,7 @@ def test_homepage_renders_profile_navigation_and_featured_sections(monkeypatch) 
     )
     assert '<p class="site-name"><a href="/">Alex Parker</a></p>' in response.text
     assert "Analytics-focused software builder" in response.text
-    assert "1 measured result from 1 organization" in response.text
+    assert "Selected results" in response.text
     assert "6 hours saved weekly" in response.text
     assert (
         response.text.index("Analytics-focused software builder")
@@ -208,7 +207,7 @@ def test_experience_page_renders_experience_content(monkeypatch) -> None:
         response = app_client.get("/experience")
 
     assert response.status_code == 200
-    assert "<h1>1 role across 1 year</h1>" in response.text
+    assert "<h1>Experience</h1>" in response.text
     assert "North Star Co" in response.text
     assert "Selected roles" not in response.text
     assert "Automated weekly KPI reporting." in response.text
@@ -233,10 +232,7 @@ def test_projects_pages_render_project_lists_and_external_links(monkeypatch) -> 
         detail_response = app_client.get("/projects/resume-site")
 
     assert list_response.status_code == 200
-    assert (
-        "<h1>1 published project, each traced from business problem to outcome</h1>"
-        in list_response.text
-    )
+    assert "<h1>Projects</h1>" in list_response.text
     assert 'href="/projects/resume-site"' in list_response.text
     assert detail_response.status_code == 200
     assert "<h1>Resume Site</h1>" in detail_response.text
@@ -283,13 +279,10 @@ def test_skills_and_education_pages_render_without_empty_optional_labels(
         education_response = app_client.get("/education")
 
     assert skills_response.status_code == 200
-    assert "<h1>2 skills across 2 areas</h1>" in skills_response.text
+    assert "<h1>Skills</h1>" in skills_response.text
     assert "Warehouse modeling and reporting." in skills_response.text
     assert education_response.status_code == 200
-    assert (
-        "<h1>1 program, most recently B.S. in Information Systems"
-        " at State University</h1>" in education_response.text
-    )
+    assert "<h1>Education</h1>" in education_response.text
     assert "Dean's List" in unescape(education_response.text)
     assert "Relevant coursework" not in education_response.text
     assert "Certifications" not in education_response.text
@@ -425,3 +418,17 @@ def test_static_assets_carry_a_content_version(monkeypatch) -> None:
 
     assert "styles.css?v=" in response.text
     assert "timeline.js?v=" in response.text
+
+
+def test_homepage_copy_stays_plain(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_homepage",
+        lambda _: published_homepage_content(),
+    )
+
+    with TestClient(create_app()) as app_client:
+        response = app_client.get("/")
+
+    for phrase in ("with results", "Next steps", "Reach ", "Source:", "every figure"):
+        assert phrase.lower() not in response.text.lower()
+    assert ">All experience</a>" in response.text

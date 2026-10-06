@@ -257,7 +257,7 @@
       },
       "label": {
         "displayName": "Exhibit label",
-        "purpose": "Exhibit captions, source lines, and dt labels."
+        "purpose": "Exhibit captions and dt labels."
       },
       "meta": {
         "displayName": "Meta",
@@ -334,7 +334,7 @@
       "kind": "custom",
       "refersTo": "exhibit",
       "description": "The section grammar: a computed action title, then an exhibit with a caption and a Source line.",
-      "html": "<section class=\"ds-section\"><h2 class=\"ds-section-title\">4 measured results from 4 organizations</h2><figure class=\"ds-exhibit\"><figcaption class=\"ds-caption\">Selected results</figcaption><ol class=\"ds-findings\"><li class=\"ds-finding\"><p><strong class=\"ds-figure\">6 hours saved per week</strong> Automated weekly KPI reporting for business stakeholders.</p><p class=\"ds-finding-source\">West Coast Commerce</p></li></ol><p class=\"ds-source\">Source: accomplishment metrics in published experience records.</p></figure></section>",
+      "html": "<section class=\"ds-section\"><h2 class=\"ds-section-title\">Selected results</h2><figure class=\"ds-exhibit\"><ol class=\"ds-findings\"><li class=\"ds-finding\"><p><strong class=\"ds-figure\">6 hours saved per week</strong> Automated weekly KPI reporting for business stakeholders.</p><p class=\"ds-finding-source\">West Coast Commerce</p></li></ol></figure></section>",
       "css": ".ds-section { display: grid; gap: 1.5rem; font-family: var(--font, Archivo, 'Helvetica Neue', Arial, sans-serif); color: var(--ink, #0b1f3a); } .ds-section-title { margin: 0; max-width: 30ch; font-size: clamp(1.75rem, 1.25rem + 1.9vw, 2.625rem); font-weight: 720; font-variation-settings: 'wdth' 85; letter-spacing: -0.015em; line-height: 1.12; } .ds-exhibit { display: grid; gap: 1rem; margin: 0; padding: 1.5rem 1.5rem 1rem; background: var(--wash, #f2f5f8); border-top: 1px solid var(--rule-strong, #0b1f3a); } .ds-caption { font-size: 0.875rem; font-weight: 680; } .ds-findings { margin: 0; padding: 0; list-style: none; } .ds-finding { display: grid; grid-template-columns: minmax(0, 1fr) 14rem; gap: 0.25rem 2rem; align-items: baseline; } .ds-finding p { margin: 0; } .ds-finding > p:first-child { max-width: 52ch; font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem); line-height: 1.3; } .ds-figure { color: var(--data, #0b7a77); font-weight: 700; font-variant-numeric: tabular-nums lining-nums; } .ds-finding-source { color: var(--muted, #566679); font-size: 0.875rem; text-align: right; } .ds-source { margin: 0; padding-top: 0.75rem; color: var(--muted, #566679); font-size: 0.875rem; border-top: 1px solid var(--rule, #cdd5df); }"
     },
     {
@@ -364,10 +364,10 @@
   ],
   "narrative": {
     "northStar": "The Strategy Deck",
-    "overview": "The site reads like a document from a strategy firm. Each section opens with an action title, which is a full sentence stating a finding computed from the database. The evidence sits under it as an exhibit with a caption and a source line naming the records it came from. The reader should be able to skim the titles alone and still get the argument.\n\nThe page is white paper with deep navy ink, cool gray hairline rules, and a pale wash behind each exhibit. Two colors have narrow jobs. Teal marks emphasis inside exhibits, and burnt orange marks the things you can press. Archivo carries every word, and its width axis does the work that a second typeface would do elsewhere. Titles run semi-condensed and heavy, while body text runs at regular width.\n\nDensity is moderate and editorial. Rules separate rows, a 3px navy rule closes the title block, and nothing floats. The build rejects the old default look: system-ui type, slate palette, cards, pills, and a name hero over equal tiles.",
+    "overview": "The site reads like a document from a strategy firm, in its structure rather than its voice. Each section opens with a plain label, and the evidence sits under it as an exhibit or a record list. The copy stays factual and modest: no count headlines, no calls to action, and no lines about how the site itself works.\n\nThe page is white paper with deep navy ink, cool gray hairline rules, and a pale wash behind each exhibit. Two colors have narrow jobs. Teal marks emphasis inside exhibits, and burnt orange marks the things you can press. Archivo carries every word, and its width axis does the work that a second typeface would do elsewhere. Titles run semi-condensed and heavy, while body text runs at regular width.\n\nDensity is moderate and editorial. Rules separate rows, a 3px navy rule closes the title block, and nothing floats. The build rejects the old default look: system-ui type, slate palette, cards, pills, and a name hero over equal tiles.",
     "keyCharacteristics": [
-      "Computed action titles, never labels, on every section that has data",
-      "Exhibits with a caption on top and a \"Source:\" line at the foot",
+      "Plain section labels, such as \"Experience\" and \"Selected results\"",
+      "Exhibits with a caption on top where a caption adds information",
       "One shared first column for dates, timeline labels, and figures",
       "Archivo width contrast, with titles at wdth 82 to 92 and body at 100",
       "Tabular, lining figures wherever numbers align",
@@ -416,8 +416,7 @@
       }
     ],
     "dos": [
-      "Do write each section title as a sentence computed from records, such as \"4 measured results from 4 organizations.\"",
-      "Do put evidence in an exhibit with a caption and a \"Source:\" line that names the records.",
+      "Do label sections plainly (\"Experience,\" \"Skills\") and link to detail pages with \"All experience,\" \"All skills,\" and so on.",
       "Do start every row on the shared label column, and give the timeline its own 20rem column at 64rem and up.",
       "Do set metrics in bold teal with tabular, lining figures.",
       "Do keep titles at wdth 82 to 92 and body text at wdth 100.",
@@ -432,7 +431,8 @@
       "Don't render skills as pills or tags. Use plain lists under a navy-ruled category head.",
       "Don't put an eyebrow or kicker label above a heading. The action title opens the section.",
       "Don't type derived numbers, such as counts or year spans, into templates. Compute them from records.",
-      "Don't add a second typeface or swap back to system-ui."
+      "Don't add a second typeface or swap back to system-ui.",
+      "Don't write count headlines, link labels that sell (\"with results\"), closing pitches (\"Next steps\"), or lines about how the site is built."
     ]
   }
 }

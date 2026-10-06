@@ -12,7 +12,7 @@ from fastapi.templating import Jinja2Templates
 from app.core.urls import normalize_http_url
 from app.services import DatabaseUnavailableError, ResumeService
 from app.services.resume import role_note
-from app.services.timeline import build_timeline, describe_span, experience_anchor
+from app.services.timeline import build_timeline, experience_anchor
 
 router = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(
@@ -146,19 +146,14 @@ def homepage(
         for experience in homepage_content.experiences
         if (note := role_note(experience, promoted))
     ]
-    organizations = {
-        highlight.organization for highlight in homepage_content.highlights
-    }
     return _render(
         request,
         "home.html",
         {
             "content": homepage_content,
             "timeline": build_timeline(homepage_content.all_experiences),
-            "career_span": describe_span(homepage_content.all_experiences),
             "skill_groups": _group_skills(homepage_content.skills),
             "selected_roles": selected_roles,
-            "highlight_organization_count": len(organizations),
         },
         site_name=profile.full_name if profile else service.get_site_name(),
         include_resume_pages=not homepage_content.is_fallback,
@@ -181,7 +176,6 @@ def experience_page(
         {
             "experiences": experiences,
             "timeline": build_timeline(experiences),
-            "career_span": describe_span(experiences),
         },
         site_name=service.get_site_name(),
     )
@@ -240,7 +234,7 @@ def skills_page(
     return _render(
         request,
         "skills.html",
-        {"skill_groups": _group_skills(skills), "skill_count": len(skills)},
+        {"skill_groups": _group_skills(skills)},
         site_name=service.get_site_name(),
     )
 

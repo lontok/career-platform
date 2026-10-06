@@ -17,15 +17,15 @@ A recruiter or hiring manager for LA analytics and technical roles, scanning man
 
 ## Proof and constraints
 
-Every claim comes from a published database record. Derived headline numbers (role counts, year spans) are computed from records, never typed into templates. Highlights come from accomplishment metrics. The design must degrade to the fallback profile cleanly and omit every empty field. Web fonts from a CDN and JavaScript are allowed. Failure order to avoid: template look, then flashy, then hard for students to copy.
+Every claim comes from a published database record. Section titles are plain labels. The owner asked for copy with nothing boasting, cheesy, or salesy, so there are no count headlines, source lines, or closing pitch. Highlights come from accomplishment metrics. The design must degrade to the fallback profile cleanly and omit every empty field. Web fonts from a CDN and JavaScript are allowed. Failure order to avoid: template look, then flashy, then hard for students to copy.
 
 ## Direction contract
 
-THESIS: The resume as a strategy-firm document. Every section opens with an action title, a full sentence stating a finding computed from the data, and the evidence sits under it as an exhibit with a caption and a source line naming the database records it came from. It refuses the name hero over equal cards and skill pills.
+THESIS: The resume as a strategy-firm document. Every section opens with a plain label, and the evidence sits under it as an exhibit or record list. The document structure carries the world, and the copy stays modest. It refuses the name hero over equal cards and skill pills.
 
 OWN-WORLD: White paper, deep navy ink, cool gray rules, and a pale exhibit wash. One teal data ink marks emphasis inside exhibits. One burnt-orange action color is reserved for links and buttons only. Archivo throughout, with width contrast: semi-condensed heavy action titles, regular-width body, tabular figures everywhere numbers align. Hairline rules, no cards, no shadows.
 
-STORY: The visitor reads one sentence about what this person does for a business, sees the target roles and Los Angeles, scans an executive summary of measured results, reads a career timeline drawn to scale, and closes on a next-steps block with the contact actions.
+STORY: The visitor reads one sentence about what this person does for a business, sees the target roles and Los Angeles, scans an executive summary of measured results, reads a career timeline drawn to scale, and closes on a contact block.
 
 FIRST VIEWPORT: Candidate name as the site identity at top left with quiet nav at right. Below, the headline set as the page's action title at display size across eight of twelve columns, then a byline of target roles and location, then the summary at reading size, then LinkedIn and GitHub as two burnt-orange buttons. The executive summary findings start inside the fold as full-width rows: statement at large reading size, metric inline in teal, organization as the source at right.
 

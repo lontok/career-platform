@@ -78,8 +78,6 @@ The home page shows experiences marked `featured`. When none are featured, it sh
 
 The executive summary lists up to four accomplishments that have a `metric`, in the same order as the experience list. Accomplishments without a metric still appear on `/experience`.
 
-Section headlines such as "7 roles across 26 years" are computed from published records, so they update when the data changes.
-
 ## Update resume content safely
 
 1. Back up the current SQLite file in `data/` before making content changes.
