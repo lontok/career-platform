@@ -13,6 +13,9 @@ from app.services import DatabaseUnavailableError, ResumeService
 
 
 class UnavailableProjectsService:
+    def get_site_name(self) -> str:
+        return "Fallback Candidate"
+
     def get_projects(self) -> list[object]:
         raise DatabaseUnavailableError("sqlite database connection failed")
 
@@ -43,12 +46,12 @@ def test_homepage_fallback_omits_detailed_resume_content(client, app) -> None:
 
     assert response.status_code == 200
     assert "Detailed resume information is temporarily unavailable." in response.text
-    assert "Featured Projects" not in response.text
+    assert 'id="home-projects-heading"' not in response.text
     assert 'href="/experience"' not in response.text
 
 
 def test_page_dependency_uses_database_url_configured_before_app_creation(
-    monkeypatch, tmp_path: Path
+    monkeypatch, tmp_path: Path, sample_seed
 ) -> None:
     database_url = f"sqlite+pysqlite:///{tmp_path / 'configured-before-app.db'}"
     monkeypatch.setenv("DATABASE_URL", database_url)

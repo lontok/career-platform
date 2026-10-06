@@ -547,3 +547,143 @@ def test_non_homepage_queries_raise_database_unavailable_error(
 
     with pytest.raises(DatabaseUnavailableError):
         getattr(service, method_name)(*args)
+
+
+def _experience(organization: str, start: date, *, featured: bool = False, metrics=()):
+    experience = Experience(
+        role_title=f"Analyst at {organization}",
+        organization=organization,
+        location="Los Angeles, CA",
+        start_date=start,
+        end_date=None,
+        is_current=False,
+        summary=f"Worked at {organization}.",
+        published=True,
+        featured=featured,
+        display_order=0,
+    )
+    experience.accomplishments = [
+        ExperienceAccomplishment(
+            statement=f"Result {index} at {organization}.",
+            metric=metric,
+            display_order=index,
+        )
+        for index, metric in enumerate(metrics, start=1)
+    ]
+    return experience
+
+
+def test_homepage_shows_featured_experiences_and_counts_all(session_factory) -> None:
+    with session_factory() as session:
+        session.add_all(
+            [
+                _experience("Newest Co", date(2025, 1, 1)),
+                _experience("Featured Old Co", date(2018, 1, 1), featured=True),
+                _experience("Middle Co", date(2021, 1, 1)),
+                _experience("Featured Mid Co", date(2020, 1, 1), featured=True),
+            ]
+        )
+        session.commit()
+
+    homepage = ResumeService(session_factory=session_factory).get_homepage()
+
+    assert [experience.organization for experience in homepage.experiences] == [
+        "Featured Mid Co",
+        "Featured Old Co",
+    ]
+    assert homepage.experience_count == 4
+
+
+def test_homepage_falls_back_to_three_most_recent_experiences(session_factory) -> None:
+    with session_factory() as session:
+        session.add_all(
+            [
+                _experience(f"Co {year}", date(year, 1, 1))
+                for year in (2016, 2018, 2020, 2022, 2024)
+            ]
+        )
+        session.commit()
+
+    homepage = ResumeService(session_factory=session_factory).get_homepage()
+
+    assert [experience.organization for experience in homepage.experiences] == [
+        "Co 2024",
+        "Co 2022",
+        "Co 2020",
+    ]
+    assert homepage.experience_count == 5
+
+
+def test_homepage_highlights_collect_up_to_four_metrics_across_roles(
+    session_factory,
+) -> None:
+    with session_factory() as session:
+        session.add_all(
+            [
+                _experience(
+                    "Recent Co", date(2024, 1, 1), metrics=("40% faster", None)
+                ),
+                _experience(
+                    "Older Co",
+                    date(2019, 1, 1),
+                    metrics=("$2M saved", "3x", "12 teams"),
+                ),
+            ]
+        )
+        session.commit()
+
+    homepage = ResumeService(session_factory=session_factory).get_homepage()
+
+    assert [(item.metric, item.organization) for item in homepage.highlights] == [
+        ("40% faster", "Recent Co"),
+        ("$2M saved", "Older Co"),
+        ("3x", "Older Co"),
+        ("12 teams", "Older Co"),
+    ]
+    assert homepage.highlights[0].statement == "Result 1 at Recent Co."
+
+
+def test_site_name_uses_published_profile_then_fallback(session_factory) -> None:
+    service = ResumeService(session_factory=session_factory)
+    assert service.get_site_name() == "Career Platform"
+
+    with session_factory() as session:
+        session.add(
+            Profile(
+                full_name="Public Candidate",
+                headline="Analytics engineer",
+                summary="Builds data products.",
+                location="Los Angeles, CA",
+                target_roles="Analytics Engineer",
+                email="public@example.com",
+                published=True,
+            )
+        )
+        session.commit()
+    assert service.get_site_name() == "Public Candidate"
+
+    def raising_session_factory():
+        raise OperationalError("SELECT 1", {}, RuntimeError("database offline"))
+
+    fallback_name = ResumeService(
+        session_factory=raising_session_factory
+    ).get_site_name()
+    assert fallback_name == "Greg Lontok"
+
+
+def test_role_note_skips_results_already_in_the_summary() -> None:
+    from app.services.resume import role_note
+
+    experience = _experience(
+        "Note Co", date(2024, 1, 1), metrics=("40% faster", None, "3x")
+    )
+    promoted = {"Result 1 at Note Co."}
+
+    note = role_note(experience, promoted)
+    assert (note.metric, note.statement) == ("3x", "Result 3 at Note Co.")
+
+    every_statement = {a.statement for a in experience.accomplishments}
+    assert role_note(experience, every_statement).statement == "Worked at Note Co."
+
+    experience.summary = ""
+    assert role_note(experience, every_statement) is None

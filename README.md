@@ -64,13 +64,27 @@ Do not commit SQLite database files. Keep local SQLite database files under `dat
 uv run python -m app.seed
 ```
 
-The seed command validates `app/fallback_profile.json` before writing and then inserts or updates representative published records for the profile, experience, project, skill, and education tables. Re-running it is safe and keeps the demo data idempotent.
+The seed command validates `app/fallback_profile.json` before writing and then inserts or updates the site owner's published records for the profile, experience, project, skill, and education tables. Re-running it is safe and doesn't create duplicates. Tests use the fictional sample in `tests/seed_samples.py` instead.
+
+Target roles are optional. Leave `target_roles` empty when the site shouldn't read as a job search, and the home page omits them.
+
+Seeding refuses to write when the profile's headline, summary, or location is blank. The fallback profile follows the same rule. The home page leads with the headline and summary, so a blank one leaves the first screen empty.
+
+Seeding also unpublishes every other profile and publishes the one in `app/seed.py`. If your database holds a profile you added another way, running the seed replaces it on the public site.
+
+## How the home page chooses what to show
+
+The home page shows experiences marked `featured`. When none are featured, it shows the three most recent roles. The career timeline always shows every published role, and featured roles are drawn in a different color.
+
+The executive summary lists up to four accomplishments that have a `metric`, in the same order as the experience list. Accomplishments without a metric still appear on `/experience`.
+
+Section headlines such as "7 roles across 26 years" are computed from published records, so they update when the data changes.
 
 ## Update resume content safely
 
 1. Back up the current SQLite file in `data/` before making content changes.
 2. Edit the published seed content in `app/seed.py`; update `app/fallback_profile.json` only with intentionally public fallback profile data.
-3. If the schema changes, create and apply a migration before seeding.
+3. If the schema changes, create and apply a migration before seeding. To highlight a role on the home page, set `featured` to true on that experience.
 4. Run `uv run alembic upgrade head`.
 5. Run `uv run python -m app.seed`.
 6. Confirm the public resume pages render the updated published data once the page routes are available.

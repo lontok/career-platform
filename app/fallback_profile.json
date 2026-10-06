@@ -1,21 +1,13 @@
 {
-  "full_name": "Alex Parker",
-  "headline": "Analytics-focused software builder for business teams",
-  "summary": "Builds dependable data products and automation that help business partners make faster, better-informed decisions.",
-  "location": "Los Angeles, CA",
-  "target_roles": [
-    "Analytics Engineer",
-    "Data Analyst",
-    "Business Systems Analyst"
-  ],
+  "full_name": "Greg Lontok",
+  "headline": "Clinical Associate Professor - Information Systems & Business Analytics at Loyola Marymount University",
+  "summary": "Spent more than a decade leading technology and data science teams in Los Angeles media and advertising, then brought that experience to teaching information systems and business analytics at LMU.",
+  "location": "Los Angeles Metropolitan Area",
+  "target_roles": [],
   "contact_links": [
     {
       "label": "LinkedIn",
-      "url": "https://www.linkedin.com/in/alexparker-analytics"
-    },
-    {
-      "label": "GitHub",
-      "url": "https://github.com/alexparker-analytics"
+      "url": "https://www.linkedin.com/in/lontok"
     }
   ]
 }

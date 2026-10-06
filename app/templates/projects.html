@@ -1,22 +1,47 @@
 {% extends "base.html" %}
+{% from "_macros.html" import plural %}
 
-{% block title %}Projects | Career Platform{% endblock %}
+{% block title %}Projects | {{ site_name }}{% endblock %}
 
 {% block content %}
-  <h1>Projects</h1>
-  <div class="card-grid">
-    {% for project in projects %}
-      <article class="card">
-        <h2><a href="/projects/{{ project.slug }}">{{ project.title }}</a></h2>
-        <p>{{ project.summary }}</p>
-        {% if project.skills %}
-          <ul class="tag-list">
-            {% for skill in project.skills %}
-              <li>{{ skill.name }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </article>
-    {% endfor %}
-  </div>
+  <header class="page-head">
+    {% if projects %}
+      <h1>{{ plural(projects | length, "published project") }}, each traced from business problem to outcome</h1>
+    {% else %}
+      <h1>Projects</h1>
+      <p class="lede">No projects are published yet.</p>
+    {% endif %}
+  </header>
+
+  {% if projects %}
+    <ol class="record-list record-list-spacious">
+      {% for project in projects %}
+        <li class="record">
+          <div class="record-body record-body-wide">
+            <h2 class="record-title"><a href="/projects/{{ project.slug }}">{{ project.title }}</a></h2>
+            {% if project.summary %}
+              <p class="record-meta">{{ project.summary }}</p>
+            {% endif %}
+            <dl class="need-value">
+              {% if project.problem %}
+                <div>
+                  <dt>Problem</dt>
+                  <dd>{{ project.problem }}</dd>
+                </div>
+              {% endif %}
+              {% if project.outcome %}
+                <div>
+                  <dt>Outcome</dt>
+                  <dd>{{ project.outcome }}</dd>
+                </div>
+              {% endif %}
+            </dl>
+            {% if project.skills %}
+              <p class="record-tags"><span>Skills applied:</span> {{ project.skills | map(attribute="name") | join(", ") }}</p>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
 {% endblock %}

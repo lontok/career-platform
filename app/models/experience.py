@@ -13,6 +13,7 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    false,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -57,6 +58,9 @@ class Experience(Base):
     is_current: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     summary: Mapped[str] = mapped_column(Text)
     published: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    featured: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
     display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     accomplishments: Mapped[list[ExperienceAccomplishment]] = relationship(

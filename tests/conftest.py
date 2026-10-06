@@ -38,7 +38,19 @@ def session(app: FastAPI) -> Iterator[Session]:
 
 
 @pytest.fixture
-def seeded_session(app: FastAPI) -> Iterator[Session]:
+def sample_seed(monkeypatch) -> None:
+    """Swap the real seed content for the fictional sample resume."""
+    from app import seed as seed_module
+    from tests import seed_samples
+
+    for name in ("PROFILE", "SKILLS", "EXPERIENCES", "PROJECTS", "EDUCATION"):
+        monkeypatch.setattr(
+            seed_module, f"SEED_{name}", getattr(seed_samples, f"SAMPLE_{name}")
+        )
+
+
+@pytest.fixture
+def seeded_session(app: FastAPI, sample_seed) -> Iterator[Session]:
     seed_demo_content(session_factory=app.state.session_factory)
 
     with app.state.session_factory() as database_session:

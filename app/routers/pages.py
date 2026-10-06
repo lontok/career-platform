@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from collections import OrderedDict
 from pathlib import Path
 from typing import Annotated, Any
@@ -10,12 +11,27 @@ from fastapi.templating import Jinja2Templates
 
 from app.core.urls import normalize_http_url
 from app.services import DatabaseUnavailableError, ResumeService
+from app.services.resume import role_note
+from app.services.timeline import build_timeline, describe_span, experience_anchor
 
 router = APIRouter(include_in_schema=False)
 templates = Jinja2Templates(
     directory=Path(__file__).resolve().parent.parent / "templates"
 )
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+
+
+def _static_version() -> str:
+    """Short content hash so browsers fetch fresh CSS and JS after each deploy."""
+    digest = hashlib.sha256()
+    for name in ("styles.css", "timeline.js"):
+        digest.update((STATIC_DIR / name).read_bytes())
+    return digest.hexdigest()[:10]
+
+
 templates.env.globals["safe_http_url"] = normalize_http_url
+templates.env.globals["static_version"] = _static_version()
+templates.env.globals["experience_anchor"] = experience_anchor
 GENERIC_OUTAGE_MESSAGE = (
     "This service is temporarily unavailable. Please try again later."
 )
@@ -71,6 +87,7 @@ def _render(
     template_name: str,
     context: dict,
     *,
+    site_name: str,
     status_code: int = status.HTTP_200_OK,
     include_resume_pages: bool = True,
 ) -> HTMLResponse:
@@ -79,6 +96,7 @@ def _render(
         template_name,
         {
             **context,
+            "site_name": site_name,
             "nav_links": _navigation(
                 request, include_resume_pages=include_resume_pages
             ),
@@ -87,21 +105,23 @@ def _render(
     )
 
 
-def _service_unavailable(request: Request) -> HTMLResponse:
+def _service_unavailable(request: Request, service: ResumeService) -> HTMLResponse:
     return _render(
         request,
         "error.html",
         {"message": GENERIC_OUTAGE_MESSAGE},
+        site_name=service.get_site_name(),
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         include_resume_pages=False,
     )
 
 
-def _not_found(request: Request) -> HTMLResponse:
+def _not_found(request: Request, service: ResumeService) -> HTMLResponse:
     return _render(
         request,
         "not_found.html",
         {},
+        site_name=service.get_site_name(),
         status_code=status.HTTP_404_NOT_FOUND,
     )
 
@@ -119,10 +139,28 @@ def homepage(
     service: ResumeServiceDependency,
 ) -> HTMLResponse:
     homepage_content = service.get_homepage()
+    profile = homepage_content.profile
+    promoted = {highlight.statement for highlight in homepage_content.highlights}
+    selected_roles = [
+        (experience, note)
+        for experience in homepage_content.experiences
+        if (note := role_note(experience, promoted))
+    ]
+    organizations = {
+        highlight.organization for highlight in homepage_content.highlights
+    }
     return _render(
         request,
         "home.html",
-        {"content": homepage_content},
+        {
+            "content": homepage_content,
+            "timeline": build_timeline(homepage_content.all_experiences),
+            "career_span": describe_span(homepage_content.all_experiences),
+            "skill_groups": _group_skills(homepage_content.skills),
+            "selected_roles": selected_roles,
+            "highlight_organization_count": len(organizations),
+        },
+        site_name=profile.full_name if profile else service.get_site_name(),
         include_resume_pages=not homepage_content.is_fallback,
     )
 
@@ -135,9 +173,18 @@ def experience_page(
     try:
         experiences = service.get_experiences()
     except DatabaseUnavailableError:
-        return _service_unavailable(request)
+        return _service_unavailable(request, service)
 
-    return _render(request, "experience.html", {"experiences": experiences})
+    return _render(
+        request,
+        "experience.html",
+        {
+            "experiences": experiences,
+            "timeline": build_timeline(experiences),
+            "career_span": describe_span(experiences),
+        },
+        site_name=service.get_site_name(),
+    )
 
 
 @router.get("/projects", response_class=HTMLResponse, name="projects_page")
@@ -148,9 +195,14 @@ def projects_page(
     try:
         projects = service.get_projects()
     except DatabaseUnavailableError:
-        return _service_unavailable(request)
+        return _service_unavailable(request, service)
 
-    return _render(request, "projects.html", {"projects": projects})
+    return _render(
+        request,
+        "projects.html",
+        {"projects": projects},
+        site_name=service.get_site_name(),
+    )
 
 
 @router.get("/projects/{slug}", response_class=HTMLResponse, name="project_detail")
@@ -162,12 +214,17 @@ def project_detail(
     try:
         project = service.get_project_by_slug(slug)
     except DatabaseUnavailableError:
-        return _service_unavailable(request)
+        return _service_unavailable(request, service)
 
     if project is None:
-        return _not_found(request)
+        return _not_found(request, service)
 
-    return _render(request, "project_detail.html", {"project": project})
+    return _render(
+        request,
+        "project_detail.html",
+        {"project": project},
+        site_name=service.get_site_name(),
+    )
 
 
 @router.get("/skills", response_class=HTMLResponse, name="skills_page")
@@ -178,12 +235,13 @@ def skills_page(
     try:
         skills = service.get_skills()
     except DatabaseUnavailableError:
-        return _service_unavailable(request)
+        return _service_unavailable(request, service)
 
     return _render(
         request,
         "skills.html",
-        {"skill_groups": _group_skills(skills)},
+        {"skill_groups": _group_skills(skills), "skill_count": len(skills)},
+        site_name=service.get_site_name(),
     )
 
 
@@ -195,6 +253,11 @@ def education_page(
     try:
         education = service.get_education()
     except DatabaseUnavailableError:
-        return _service_unavailable(request)
+        return _service_unavailable(request, service)
 
-    return _render(request, "education.html", {"education_records": education})
+    return _render(
+        request,
+        "education.html",
+        {"education_records": education},
+        site_name=service.get_site_name(),
+    )

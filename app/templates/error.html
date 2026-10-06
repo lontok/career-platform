@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Service temporarily unavailable | Career Platform{% endblock %}
+{% block title %}Service temporarily unavailable | {{ site_name }}{% endblock %}
 
 {% block content %}
-  <section class="page-intro">
+  <header class="page-head">
     <h1>Service temporarily unavailable</h1>
-    <p>{{ message }}</p>
-    <p><a href="/">Return home</a></p>
-  </section>
+    <p class="lede">{{ message }}</p>
+    <p><a class="text-link" href="/">Return home</a> for the profile summary and contact links.</p>
+  </header>
 {% endblock %}

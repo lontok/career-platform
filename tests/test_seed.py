@@ -22,6 +22,8 @@ from app.models import (
 from app.schemas.content import FallbackProfile
 from app.services.resume import ResumeService
 
+pytestmark = pytest.mark.usefixtures("sample_seed")
+
 
 @pytest.fixture()
 def session_factory():
@@ -244,3 +246,73 @@ def test_seed_demo_content_rejects_unknown_skill_references_before_commit(
 
     with session_factory() as session:
         assert session.scalar(select(func.count()).select_from(Experience)) == 0
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("headline", "   "),
+        ("summary", ""),
+        ("location", ""),
+    ],
+)
+def test_seed_rejects_blank_required_profile_fields_before_writing(
+    session_factory, monkeypatch, field: str, value: str
+) -> None:
+    monkeypatch.setattr(
+        seed_module, "SEED_PROFILE", {**seed_module.SEED_PROFILE, field: value}
+    )
+
+    with pytest.raises(ValueError, match=f"Seed profile is missing {field}"):
+        seed_module.seed_demo_content(session_factory=session_factory)
+
+    with session_factory() as session:
+        assert session.scalar(select(func.count()).select_from(Profile)) == 0
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("headline", " "), ("summary", "")],
+)
+def test_fallback_profile_rejects_blank_required_fields(field: str, value) -> None:
+    payload = {
+        "full_name": "Public Candidate",
+        "headline": "Analytics engineer",
+        "summary": "Builds reliable data products.",
+        "location": "Los Angeles, CA",
+        "target_roles": ["Analytics Engineer"],
+        "contact_links": [
+            {"label": "LinkedIn", "url": "https://www.linkedin.com/in/public-candidate"}
+        ],
+    }
+
+    with pytest.raises(ValidationError):
+        FallbackProfile.model_validate({**payload, field: value})
+
+
+def test_real_seed_content_is_the_site_owner(monkeypatch) -> None:
+    monkeypatch.undo()
+    from importlib import reload
+
+    real_seed = reload(seed_module)
+    real_seed.validate_seed_data()
+    fallback = real_seed.load_fallback_profile(real_seed.FALLBACK_PROFILE_PATH)
+
+    assert real_seed.SEED_PROFILE["full_name"] == "Greg Lontok"
+    assert fallback.full_name == "Greg Lontok"
+    assert real_seed.SEED_PROFILE["target_roles"] == ""
+    assert fallback.target_roles == []
+    assert real_seed.SEED_PROFILE["github_url"] is None
+    assert real_seed.SEED_PROJECTS == []
+    assert len(real_seed.SEED_EXPERIENCES) == 7
+
+
+def test_seed_accepts_blank_target_roles(session_factory, monkeypatch) -> None:
+    monkeypatch.setattr(
+        seed_module, "SEED_PROFILE", {**seed_module.SEED_PROFILE, "target_roles": ""}
+    )
+
+    seed_module.seed_demo_content(session_factory=session_factory)
+
+    with session_factory() as session:
+        assert session.scalar(select(Profile.target_roles)) == ""

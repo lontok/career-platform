@@ -1,54 +1,45 @@
 {% extends "base.html" %}
+{% from "_macros.html" import period, education_finding %}
 
-{% block title %}Education | Career Platform{% endblock %}
+{% block title %}Education | {{ site_name }}{% endblock %}
 
 {% block content %}
-  <h1>Education</h1>
-  <div class="stack">
-    {% for record in education_records %}
-      <article class="card">
-        <header class="card-header">
-          <div>
-            <h2>{{ record.institution_name }}</h2>
-            <p>{{ record.degree_or_program }} in {{ record.field_of_study }}</p>
-          </div>
-          <p class="muted">
-            {{ record.start_date.strftime("%b %Y") }}
-            —
-            {% if record.end_date %}
-              {{ record.end_date.strftime("%b %Y") }}
-            {% else %}
-              Present
+  <header class="page-head">
+    {% if education_records %}
+      <h1>{{ education_finding(education_records) }}</h1>
+    {% else %}
+      <h1>Education</h1>
+      <p class="lede">No education is published yet.</p>
+    {% endif %}
+  </header>
+
+  {% if education_records %}
+    <ol class="record-list record-list-spacious">
+      {% for record in education_records %}
+        <li class="record">
+          <p class="record-period">{{ period(record) }}</p>
+          <div class="record-body">
+            <h2 class="record-title">{{ record.institution_name }}</h2>
+            <p class="record-meta">{{ record.degree_or_program }}{% if record.field_of_study %} in {{ record.field_of_study }}{% endif %}</p>
+            {% set details = [
+              ("GPA", record.gpa),
+              ("Honors", record.honors),
+              ("Relevant coursework", record.relevant_coursework),
+              ("Certifications", record.certifications),
+            ] | selectattr(1) | list %}
+            {% if details %}
+              <dl class="detail-table">
+                {% for label, value in details %}
+                  <div>
+                    <dt>{{ label }}</dt>
+                    <dd>{{ value }}</dd>
+                  </div>
+                {% endfor %}
+              </dl>
             {% endif %}
-          </p>
-        </header>
-        <dl class="meta-list">
-          {% if record.gpa %}
-            <div>
-              <dt>GPA</dt>
-              <dd>{{ record.gpa }}</dd>
-            </div>
-          {% endif %}
-          {% if record.honors %}
-            <div>
-              <dt>Honors</dt>
-              <dd>{{ record.honors }}</dd>
-            </div>
-          {% endif %}
-          {% if record.relevant_coursework %}
-            <div>
-              <dt>Relevant coursework</dt>
-              <dd>{{ record.relevant_coursework }}</dd>
-            </div>
-          {% endif %}
-          {% if record.certifications %}
-            <div>
-              <dt>Certifications</dt>
-              <dd>{{ record.certifications }}</dd>
-            </div>
-          {% endif %}
-        </dl>
-      </article>
-    {% endfor %}
-  </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
 {% endblock %}

@@ -3,14 +3,19 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Career Platform{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', path='favicon.svg') }}" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}?v={{ static_version }}">
+    <script src="{{ url_for('static', path='timeline.js') }}?v={{ static_version }}" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <header class="site-header">
       <div class="site-shell site-header-layout">
-        <p class="site-name"><a href="/">Career Platform</a></p>
+        <p class="site-name"><a href="/">{{ site_name }}</a></p>
         <nav aria-label="Primary navigation">
           <ul class="site-nav">
             {% for link in nav_links %}
@@ -29,8 +34,11 @@
       {% block content %}{% endblock %}
     </main>
     <footer class="site-footer">
-      <div class="site-shell">
-        <p>Career Platform</p>
+      <div class="site-shell site-footer-layout">
+        <p class="site-footer-name">{{ site_name }}</p>
+        {% if not (content is defined and content.is_fallback) %}
+          <p>Every figure on this site comes from a published resume record.</p>
+        {% endif %}
       </div>
     </footer>
   </body>

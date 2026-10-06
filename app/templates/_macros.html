@@ -1,0 +1,28 @@
+{% macro plural(count, word, plural_word=None) -%}
+  {{ count }} {{ word if count == 1 else (plural_word or word ~ "s") }}
+{%- endmacro %}
+
+{% macro period(record) -%}
+  {{ record.start_date.strftime("%b %Y") }} to {{ record.end_date.strftime("%b %Y") if record.end_date else "Present" }}
+{%- endmacro %}
+
+{% macro external_icon() -%}
+  <svg class="icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 3.5h6.5V10M12.25 3.75 4 12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- endmacro %}
+
+{% macro contact_actions(links) -%}
+  <ul class="actions" aria-label="Contact links">
+    {% for link in links %}
+      <li>
+        <a class="button" href="{{ link.url }}" target="_blank" rel="noopener noreferrer">
+          {{ link.label }}{{ external_icon() }}<span class="visually-hidden"> (opens in a new tab)</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{%- endmacro %}
+
+{% macro education_finding(records) -%}
+  {%- set latest = (records | sort(attribute="start_date", reverse=True))[0] -%}
+  {{ plural(records | length, "program") }}, most recently {{ latest.degree_or_program }}{% if latest.field_of_study %} in {{ latest.field_of_study }}{% endif %} at {{ latest.institution_name }}
+{%- endmacro %}

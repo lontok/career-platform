@@ -1,0 +1,438 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-06T17:49:16+00:00",
+  "title": "Design System: Career Platform resume site",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "wash": {
+        "role": "neutral",
+        "displayName": "Exhibit Wash",
+        "canonical": "oklch(96.9% 0.005 247.9)",
+        "tonalRamp": [
+          "#090b0d",
+          "#232527",
+          "#404245",
+          "#5f6164",
+          "#808385",
+          "#a2a5a8",
+          "#c7c9cc",
+          "#eceff2"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep Navy Ink",
+        "canonical": "oklch(23.9% 0.058 256.7)",
+        "tonalRamp": [
+          "#000a21",
+          "#112541",
+          "#2d4361",
+          "#4c6382",
+          "#6c84a5",
+          "#8ea7ca",
+          "#b1cbef",
+          "#e5effe"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Slate Ink",
+        "canonical": "oklch(39.2% 0.046 253.6)",
+        "tonalRamp": [
+          "#000b1e",
+          "#14263b",
+          "#31435a",
+          "#4f637b",
+          "#6f849e",
+          "#91a7c2",
+          "#b5cbe7",
+          "#e4f0ff"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Slate",
+        "canonical": "oklch(50.4% 0.036 252.9)",
+        "tonalRamp": [
+          "#020b1a",
+          "#182636",
+          "#344355",
+          "#536376",
+          "#738498",
+          "#95a7bc",
+          "#b9cbe1",
+          "#e3f0ff"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline Gray",
+        "canonical": "oklch(87.0% 0.016 253.9)",
+        "tonalRamp": [
+          "#070c12",
+          "#20262d",
+          "#3c434b",
+          "#5b626b",
+          "#7c838c",
+          "#9ea6af",
+          "#c2cad4",
+          "#e7effa"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Navy Rule",
+        "canonical": "oklch(23.9% 0.058 256.7)",
+        "tonalRamp": [
+          "#000a21",
+          "#112541",
+          "#2d4361",
+          "#4c6382",
+          "#6c84a5",
+          "#8ea7ca",
+          "#b1cbef",
+          "#e5effe"
+        ]
+      },
+      "data": {
+        "role": "secondary",
+        "displayName": "Exhibit Teal",
+        "canonical": "oklch(52.5% 0.088 191.7)",
+        "tonalRamp": [
+          "#000f0e",
+          "#022c2a",
+          "#034d4b",
+          "#03706d",
+          "#339390",
+          "#5bb7b3",
+          "#80dcd7",
+          "#b4fffb"
+        ]
+      },
+      "data-soft": {
+        "role": "secondary",
+        "displayName": "Pale Teal",
+        "canonical": "oklch(92.6% 0.024 190.4)",
+        "tonalRamp": [
+          "#010e0d",
+          "#162928",
+          "#334645",
+          "#526664",
+          "#728786",
+          "#94aaa8",
+          "#b8cfcd",
+          "#ddf4f2"
+        ]
+      },
+      "bar-other": {
+        "role": "neutral",
+        "displayName": "Bar Gray",
+        "canonical": "oklch(61.4% 0.036 254.1)",
+        "tonalRamp": [
+          "#050c15",
+          "#1d2631",
+          "#39434f",
+          "#58626f",
+          "#788491",
+          "#9ba6b4",
+          "#becbd9",
+          "#e3f0ff"
+        ]
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "Burnt Orange Action",
+        "canonical": "oklch(55.3% 0.174 38.4)",
+        "tonalRamp": [
+          "#1b0300",
+          "#451000",
+          "#742201",
+          "#a83400",
+          "#d55325",
+          "#fd784c",
+          "#feb59e",
+          "#fee9e3"
+        ]
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "Rust",
+        "canonical": "oklch(47.0% 0.143 37.3)",
+        "tonalRamp": [
+          "#1c0300",
+          "#460f00",
+          "#762001",
+          "#a23b1b",
+          "#c85e3f",
+          "#f08261",
+          "#ffb49e",
+          "#ffe9e3"
+        ]
+      },
+      "note-wash": {
+        "role": "tertiary",
+        "displayName": "Advisory Amber Wash",
+        "canonical": "oklch(97.2% 0.023 75.9)",
+        "tonalRamp": [
+          "#110a02",
+          "#2c2418",
+          "#494034",
+          "#696053",
+          "#8b8173",
+          "#aea395",
+          "#d2c7b9",
+          "#f8edde"
+        ]
+      },
+      "note-rule": {
+        "role": "tertiary",
+        "displayName": "Advisory Amber Rule",
+        "canonical": "oklch(78.9% 0.099 72.0)",
+        "tonalRamp": [
+          "#140800",
+          "#352001",
+          "#5c3a00",
+          "#835610",
+          "#a77839",
+          "#cc9b5c",
+          "#f2bf80",
+          "#ffebd4"
+        ]
+      },
+      "note-ink": {
+        "role": "tertiary",
+        "displayName": "Advisory Amber Ink",
+        "canonical": "oklch(38.8% 0.097 54.1)",
+        "tonalRamp": [
+          "#170600",
+          "#3c1a01",
+          "#673102",
+          "#8b5026",
+          "#af7247",
+          "#d59469",
+          "#fbb88c",
+          "#feeade"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display action title",
+        "purpose": "The home page action title. Over 72 characters it steps down to the headline size."
+      },
+      "headline": {
+        "displayName": "Section action title",
+        "purpose": "Computed section titles and inner page h1s (inner h1s at 760, wdth 82)."
+      },
+      "finding": {
+        "displayName": "Finding",
+        "purpose": "Executive-summary statements with an inline teal metric."
+      },
+      "title": {
+        "displayName": "Record title",
+        "purpose": "Role, project, and school titles in record rows."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Summaries and the byline under an action title."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text, paragraphs capped at 68ch."
+      },
+      "label": {
+        "displayName": "Exhibit label",
+        "purpose": "Exhibit captions, source lines, and dt labels."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "Record periods, nav links, tags, and timeline role names."
+      },
+      "axis": {
+        "displayName": "Axis",
+        "purpose": "Timeline year ticks and timeline meta lines."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The only easing curve. Used for button state changes and the timeline draw."
+      },
+      {
+        "name": "button-state",
+        "value": "160ms",
+        "purpose": "Background and border color change on button hover."
+      },
+      {
+        "name": "timeline-draw",
+        "value": "transform 900ms ease-out, 70ms stagger per row",
+        "purpose": "Bars scale from the left once when the timeline is 25% in view. Skipped without JavaScript, without IntersectionObserver, or under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "max-width: 47.99rem",
+        "purpose": "Rows stack to one column, nav wraps under the name, byline and lede drop to body size."
+      },
+      {
+        "name": "medium",
+        "value": "48rem to 63.99rem",
+        "purpose": "Label width tightens to 11rem. Findings gain the right source column."
+      },
+      {
+        "name": "wide",
+        "value": "min-width: 64rem",
+        "purpose": "Timeline label column widens to 20rem."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Burnt-orange contact and repository actions. The only filled color on the page.",
+      "html": "<a class=\"ds-button\" href=\"#\">LinkedIn<svg class=\"ds-icon\" viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" aria-hidden=\"true\"><path d=\"M6 3.5h6.5V10M12.25 3.75 4 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></a>",
+      "css": ".ds-button { display: inline-flex; align-items: center; gap: var(--space-2, 0.5rem); min-height: 2.75rem; padding: var(--space-2, 0.5rem) var(--space-5, 1.5rem); color: var(--paper, #ffffff); background: var(--action, #c2410c); border: 1px solid var(--action, #c2410c); border-radius: 4px; font-family: var(--font, Archivo, 'Helvetica Neue', Arial, sans-serif); font-weight: 620; text-decoration: none; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-button:hover { background: var(--action-hover, #9a3412); border-color: var(--action-hover, #9a3412); color: var(--paper, #ffffff); } .ds-button:focus-visible { outline: 3px solid var(--ink, #0b1f3a); outline-offset: 3px; } .ds-icon { flex: none; }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Secondary action, such as a project's live demo link.",
+      "html": "<a class=\"ds-button-quiet\" href=\"#\">Live demo</a>",
+      "css": ".ds-button-quiet { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.5rem 1.5rem; color: var(--action, #c2410c); background: transparent; border: 1px solid var(--action, #c2410c); border-radius: 4px; font-family: var(--font, Archivo, 'Helvetica Neue', Arial, sans-serif); font-weight: 620; text-decoration: none; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-button-quiet:hover { color: var(--action-hover, #9a3412); background: var(--note-wash, #fff4e5); border-color: var(--action-hover, #9a3412); } .ds-button-quiet:focus-visible { outline: 3px solid var(--ink, #0b1f3a); outline-offset: 3px; }"
+    },
+    {
+      "name": "Primary Navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Candidate name at left, quiet nav at right with a navy underline on the current page.",
+      "html": "<header class=\"ds-header\"><p class=\"ds-site-name\"><a href=\"#\">Alex Parker</a></p><ul class=\"ds-nav\"><li><a href=\"#\" aria-current=\"page\">Home</a></li><li><a href=\"#\">Experience</a></li><li><a href=\"#\">Projects</a></li><li><a href=\"#\">Skills</a></li></ul></header>",
+      "css": ".ds-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 2rem; padding-block: 1rem; border-bottom: 1px solid var(--rule, #cdd5df); font-family: var(--font, Archivo, 'Helvetica Neue', Arial, sans-serif); } .ds-site-name { margin: 0; font-size: 1.25rem; font-weight: 760; font-variation-settings: 'wdth' 88; letter-spacing: -0.01em; } .ds-site-name a { color: var(--ink, #0b1f3a); text-decoration: none; } .ds-nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; margin: 0; padding: 0; list-style: none; } .ds-nav a { display: inline-block; padding-block: 0.5rem; color: var(--ink-soft, #34475e); font-size: 0.9375rem; font-weight: 520; text-decoration: none; border-bottom: 2px solid transparent; } .ds-nav a:hover { color: var(--ink, #0b1f3a); border-bottom-color: var(--rule, #cdd5df); } .ds-nav a[aria-current='page'] { color: var(--ink, #0b1f3a); border-bottom-color: var(--ink, #0b1f3a); } .ds-nav a:focus-visible { outline: 3px solid var(--ink, #0b1f3a); outline-offset: 3px; }"
+    },
+    {
+      "name": "Section with Exhibit",
+      "kind": "custom",
+      "refersTo": "exhibit",
+      "description": "The section grammar: a computed action title, then an exhibit with a caption and a Source line.",
+      "html": "<section class=\"ds-section\"><h2 class=\"ds-section-title\">4 measured results from 4 organizations</h2><figure class=\"ds-exhibit\"><figcaption class=\"ds-caption\">Selected results</figcaption><ol class=\"ds-findings\"><li class=\"ds-finding\"><p><strong class=\"ds-figure\">6 hours saved per week</strong> Automated weekly KPI reporting for business stakeholders.</p><p class=\"ds-finding-source\">West Coast Commerce</p></li></ol><p class=\"ds-source\">Source: accomplishment metrics in published experience records.</p></figure></section>",
+      "css": ".ds-section { display: grid; gap: 1.5rem; font-family: var(--font, Archivo, 'Helvetica Neue', Arial, sans-serif); color: var(--ink, #0b1f3a); } .ds-section-title { margin: 0; max-width: 30ch; font-size: clamp(1.75rem, 1.25rem + 1.9vw, 2.625rem); font-weight: 720; font-variation-settings: 'wdth' 85; letter-spacing: -0.015em; line-height: 1.12; } .ds-exhibit { display: grid; gap: 1rem; margin: 0; padding: 1.5rem 1.5rem 1rem; background: var(--wash, #f2f5f8); border-top: 1px solid var(--rule-strong, #0b1f3a); } .ds-caption { font-size: 0.875rem; font-weight: 680; } .ds-findings { margin: 0; padding: 0; list-style: none; } .ds-finding { display: grid; grid-template-columns: minmax(0, 1fr) 14rem; gap: 0.25rem 2rem; align-items: baseline; } .ds-finding p { margin: 0; } .ds-finding > p:first-child { max-width: 52ch; font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem); line-height: 1.3; } .ds-figure { color: var(--data, #0b7a77); font-weight: 700; font-variant-numeric: tabular-nums lining-nums; } .ds-finding-source { color: var(--muted, #566679); font-size: 0.875rem; text-align: right; } .ds-source { margin: 0; padding-top: 0.75rem; color: var(--muted, #566679); font-size: 0.875rem; border-top: 1px solid var(--rule, #cdd5df); }"
+    },
+    {
+      "name": "Record Row",
+      "kind": "custom",
+      "refersTo": "record",
+      "description": "Period on the shared label column, then title, meta, and one result.",
+      "html": "<ol class=\"ds-records\"><li class=\"ds-record\"><p class=\"ds-period\">Jan 2022 to Present</p><div class=\"ds-record-body\"><h3 class=\"ds-record-title\">Analytics Engineer</h3><p class=\"ds-record-meta\">West Coast Commerce, Los Angeles, CA</p><p><strong class=\"ds-figure\">6 hours saved per week</strong> Automated weekly KPI reporting.</p></div></li></ol>",
+      "css": ".ds-records { display: grid; margin: 0; padding: 0; list-style: none; font-family: var(--font, Archivo, 'Helvetica Neue', Arial, sans-serif); color: var(--ink, #0b1f3a); } .ds-record { display: grid; grid-template-columns: var(--label-width, 16rem) minmax(0, 1fr); gap: 0.5rem 2rem; padding-block: 1.5rem; border-top: 1px solid var(--rule, #cdd5df); } .ds-record p, .ds-record h3 { margin: 0; } .ds-period { padding-top: 0.2rem; color: var(--muted, #566679); font-size: 0.9375rem; font-variant-numeric: tabular-nums; } .ds-record-body { display: grid; gap: 0.5rem; align-content: start; } .ds-record-title { font-size: 1.25rem; font-weight: 680; font-variation-settings: 'wdth' 92; line-height: 1.12; } .ds-record-meta { color: var(--ink-soft, #34475e); } .ds-figure { color: var(--data, #0b7a77); font-weight: 700; font-variant-numeric: tabular-nums lining-nums; }"
+    },
+    {
+      "name": "Career Timeline",
+      "kind": "custom",
+      "refersTo": "timeline-bar-featured",
+      "description": "Gantt drawn to scale. Featured bars teal, others gray, dotted navy line for today. Bars are visible by default.",
+      "html": "<div class=\"ds-timeline\"><div class=\"ds-row is-featured\"><a class=\"ds-tl-label\" href=\"#\"><span class=\"ds-tl-role\">Analytics Engineer</span><span class=\"ds-tl-meta\">West Coast Commerce, 2022 to Present</span></a><span class=\"ds-track\"><span class=\"ds-gridline\" style=\"--at: 50%\"></span><span class=\"ds-today\" style=\"--at: 96%\"></span><span class=\"ds-bar\" style=\"--start: 55%; --span: 45%\"></span></span></div><div class=\"ds-row\"><a class=\"ds-tl-label\" href=\"#\"><span class=\"ds-tl-role\">Data Analyst</span><span class=\"ds-tl-meta\">Harbor Health, 2018 to 2022</span></a><span class=\"ds-track\"><span class=\"ds-gridline\" style=\"--at: 50%\"></span><span class=\"ds-today\" style=\"--at: 96%\"></span><span class=\"ds-bar\" style=\"--start: 10%; --span: 45%\"></span></span></div></div>",
+      "css": ".ds-timeline { display: grid; padding: 1.5rem; background: var(--wash, #f2f5f8); border-top: 1px solid var(--rule-strong, #0b1f3a); font-family: var(--font, Archivo, 'Helvetica Neue', Arial, sans-serif); } .ds-row { display: grid; grid-template-columns: 14.5rem minmax(0, 1fr); align-items: center; gap: 2rem; padding-block: 0.5rem; border-top: 1px solid var(--rule, #cdd5df); } .ds-tl-label { display: grid; color: var(--ink, #0b1f3a); text-decoration: none; line-height: 1.3; } .ds-tl-label:hover .ds-tl-role { color: var(--action, #c2410c); text-decoration: underline; text-underline-offset: 0.2em; } .ds-tl-label:focus-visible { outline: 3px solid var(--ink, #0b1f3a); outline-offset: 3px; } .ds-tl-role { font-size: 0.9375rem; font-weight: 600; } .ds-tl-meta { color: var(--muted, #566679); font-size: 0.8125rem; font-variant-numeric: tabular-nums; } .ds-track { position: relative; height: 1.125rem; } .ds-gridline { position: absolute; top: -0.5rem; bottom: -0.5rem; left: var(--at); width: 1px; background: var(--rule, #cdd5df); } .ds-today { position: absolute; top: -0.5rem; bottom: -0.5rem; left: var(--at); border-left: 2px dotted var(--ink, #0b1f3a); } .ds-bar { position: absolute; inset-block: 0; left: var(--start); width: var(--span); background: var(--bar-other, #76869a); border-radius: 1px; transform-origin: left center; } .ds-row.is-featured .ds-bar { background: var(--data, #0b7a77); }"
+    },
+    {
+      "name": "Status Note",
+      "kind": "custom",
+      "refersTo": "status-note",
+      "description": "Amber note for outage and fallback messages, announced as a status.",
+      "html": "<p class=\"ds-status\" role=\"status\"><strong>Note:</strong> This service is temporarily unavailable. Please try again later.</p>",
+      "css": ".ds-status { margin: 0; padding: 0.75rem 1rem; color: var(--note-ink, #6b3300); background: var(--note-wash, #fff4e5); border: 1px solid var(--note-rule, #e2b071); border-radius: 4px; font-family: var(--font, Archivo, 'Helvetica Neue', Arial, sans-serif); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Strategy Deck",
+    "overview": "The site reads like a document from a strategy firm. Each section opens with an action title, which is a full sentence stating a finding computed from the database. The evidence sits under it as an exhibit with a caption and a source line naming the records it came from. The reader should be able to skim the titles alone and still get the argument.\n\nThe page is white paper with deep navy ink, cool gray hairline rules, and a pale wash behind each exhibit. Two colors have narrow jobs. Teal marks emphasis inside exhibits, and burnt orange marks the things you can press. Archivo carries every word, and its width axis does the work that a second typeface would do elsewhere. Titles run semi-condensed and heavy, while body text runs at regular width.\n\nDensity is moderate and editorial. Rules separate rows, a 3px navy rule closes the title block, and nothing floats. The build rejects the old default look: system-ui type, slate palette, cards, pills, and a name hero over equal tiles.",
+    "keyCharacteristics": [
+      "Computed action titles, never labels, on every section that has data",
+      "Exhibits with a caption on top and a \"Source:\" line at the foot",
+      "One shared first column for dates, timeline labels, and figures",
+      "Archivo width contrast, with titles at wdth 82 to 92 and body at 100",
+      "Tabular, lining figures wherever numbers align",
+      "Hairline rules and a flat wash, with no cards, shadows, or pills"
+    ],
+    "rules": [
+      {
+        "name": "The Pressable Orange Rule",
+        "body": "Burnt orange goes only on things you can press, such as buttons, inline links, and link hovers. A heading, figure, or rule in orange is a bug.",
+        "section": "colors"
+      },
+      {
+        "name": "The Teal Lives In Exhibits Rule",
+        "body": "Teal marks emphasis inside an exhibit or a result line, and it never decorates chrome, headings, or links.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Carries Structure Rule",
+        "body": "Text and rules are navy or its softer steps. Hierarchy comes from weight, width, and size, not from extra hues.",
+        "section": "colors"
+      },
+      {
+        "name": "The Width Contrast Rule",
+        "body": "Titles use the width axis between 82 and 92, and running text stays at 100. Never add a second family to get contrast.",
+        "section": "typography"
+      },
+      {
+        "name": "The Aligned Figures Rule",
+        "body": "Any number that sits in a column or a run of dates uses tabular figures. Metric figures use tabular and lining figures together.",
+        "section": "typography"
+      },
+      {
+        "name": "The Shared Edge Rule",
+        "body": "Dates, timeline labels, and figures all start on one first column, set by the label width. A new row type takes that column or spans the full width. It never invents a third edge.",
+        "section": "layout"
+      },
+      {
+        "name": "The Omit Empty Rule",
+        "body": "A section, field, or label with no data is not rendered. There are no \"Not provided\" placeholders and no headings over empty lists. The fallback profile shows only the title block.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Paper Rule",
+        "body": "No shadows, glows, or blur anywhere. If something needs separation, it gets a rule or the wash.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do write each section title as a sentence computed from records, such as \"4 measured results from 4 organizations.\"",
+      "Do put evidence in an exhibit with a caption and a \"Source:\" line that names the records.",
+      "Do start every row on the shared label column, and give the timeline its own 20rem column at 64rem and up.",
+      "Do set metrics in bold teal with tabular, lining figures.",
+      "Do keep titles at wdth 82 to 92 and body text at wdth 100.",
+      "Do omit any section, field, or label whose data is empty.",
+      "Do keep the timeline visible without JavaScript, draw it once, and keep it static under reduced motion.",
+      "Do version static files by content hash."
+    ],
+    "donts": [
+      "Don't use burnt orange on anything that can't be pressed.",
+      "Don't use teal outside an exhibit or a result line.",
+      "Don't use cards, drop shadows, or rounded panels. Use rules and the wash.",
+      "Don't render skills as pills or tags. Use plain lists under a navy-ruled category head.",
+      "Don't put an eyebrow or kicker label above a heading. The action title opens the section.",
+      "Don't type derived numbers, such as counts or year spans, into templates. Compute them from records.",
+      "Don't add a second typeface or swap back to system-ui."
+    ]
+  }
+}

@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Page not found | Career Platform{% endblock %}
+{% block title %}Page not found | {{ site_name }}{% endblock %}
 
 {% block content %}
-  <h1>Page not found</h1>
-  <p>The page you requested is unavailable.</p>
-  <p><a href="/">Return home</a></p>
+  <header class="page-head">
+    <h1>Page not found</h1>
+    <p class="lede">The page you requested is unavailable. It may have been unpublished or the address may be mistyped.</p>
+    <p><a class="text-link" href="/">Return home</a></p>
+  </header>
 {% endblock %}

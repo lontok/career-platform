@@ -7,7 +7,13 @@ from fastapi.testclient import TestClient
 
 from app.main import create_app
 from app.models import Education, Experience, ExperienceAccomplishment, Project, Skill
-from app.schemas import ContactLink, FallbackProfile, HomepageContent
+from app.schemas import (
+    ContactLink,
+    FallbackProfile,
+    Highlight,
+    HomepageContent,
+    PublicProfile,
+)
 from app.services.resume import DatabaseUnavailableError
 
 
@@ -114,6 +120,15 @@ def published_homepage_content() -> HomepageContent:
             ],
         ),
         experiences=[experience],
+        all_experiences=[experience],
+        experience_count=1,
+        highlights=[
+            Highlight(
+                metric="6 hours saved weekly",
+                statement="Automated weekly KPI reporting.",
+                organization="North Star Co",
+            )
+        ],
         projects=[project],
         skills=[sql_skill, python_skill],
         education=[education],
@@ -132,7 +147,8 @@ def test_homepage_renders_fallback_for_database_failure(monkeypatch) -> None:
 
     assert response.status_code == 200
     assert "temporarily unavailable" in response.text
-    assert "Impact summary" not in response.text
+    assert "comes from a published resume record" not in response.text
+    assert 'id="home-impact-heading"' not in response.text
     assert "Experience" not in response.text
 
 
@@ -148,18 +164,22 @@ def test_homepage_renders_profile_navigation_and_featured_sections(monkeypatch) 
     assert response.status_code == 200
     assert "Skip to main content" in response.text
     assert 'aria-label="Primary navigation"' in response.text
-    assert "<h1>Alex Parker</h1>" in response.text
+    assert (
+        '<h1 id="page-title" class="action-title">'
+        "Analytics-focused software builder</h1>" in response.text
+    )
+    assert '<p class="site-name"><a href="/">Alex Parker</a></p>' in response.text
     assert "Analytics-focused software builder" in response.text
-    assert "Impact summary" in response.text
+    assert "1 measured result from 1 organization" in response.text
     assert "6 hours saved weekly" in response.text
     assert (
         response.text.index("Analytics-focused software builder")
-        < response.text.index("Impact summary")
+        < response.text.index('id="home-impact-heading"')
         < response.text.index('id="home-experience-heading"')
     )
     assert 'href="/experience"' in response.text
     assert 'href="/projects"' in response.text
-    assert "Featured Projects" in response.text
+    assert 'id="home-projects-heading"' in response.text
     assert "Resume Site" in response.text
     assert "State University" in response.text
 
@@ -188,8 +208,9 @@ def test_experience_page_renders_experience_content(monkeypatch) -> None:
         response = app_client.get("/experience")
 
     assert response.status_code == 200
-    assert "<h1>Experience</h1>" in response.text
+    assert "<h1>1 role across 1 year</h1>" in response.text
     assert "North Star Co" in response.text
+    assert "Selected roles" not in response.text
     assert "Automated weekly KPI reporting." in response.text
     assert "6 hours saved weekly" in response.text
     assert "SQL" in response.text
@@ -212,7 +233,10 @@ def test_projects_pages_render_project_lists_and_external_links(monkeypatch) -> 
         detail_response = app_client.get("/projects/resume-site")
 
     assert list_response.status_code == 200
-    assert "<h1>Projects</h1>" in list_response.text
+    assert (
+        "<h1>1 published project, each traced from business problem to outcome</h1>"
+        in list_response.text
+    )
     assert 'href="/projects/resume-site"' in list_response.text
     assert detail_response.status_code == 200
     assert "<h1>Resume Site</h1>" in detail_response.text
@@ -259,10 +283,13 @@ def test_skills_and_education_pages_render_without_empty_optional_labels(
         education_response = app_client.get("/education")
 
     assert skills_response.status_code == 200
-    assert "<h1>Skills</h1>" in skills_response.text
+    assert "<h1>2 skills across 2 areas</h1>" in skills_response.text
     assert "Warehouse modeling and reporting." in skills_response.text
     assert education_response.status_code == 200
-    assert "<h1>Education</h1>" in education_response.text
+    assert (
+        "<h1>1 program, most recently B.S. in Information Systems"
+        " at State University</h1>" in education_response.text
+    )
     assert "Dean's List" in unescape(education_response.text)
     assert "Relevant coursework" not in education_response.text
     assert "Certifications" not in education_response.text
@@ -313,3 +340,88 @@ def test_non_homepage_database_failures_render_generic_503(monkeypatch) -> None:
         assert response.status_code == 503
         assert "Please try again later" in response.text
         assert "Published data is unavailable" not in response.text
+
+
+def thin_homepage_content() -> HomepageContent:
+    experience = published_homepage_content().experiences[0]
+    experience.summary = ""
+    experience.accomplishments = []
+    return HomepageContent(
+        profile=PublicProfile(
+            full_name="Thin Candidate",
+            headline="Professor of Analytics",
+            summary="",
+            location="Los Angeles, CA",
+            target_roles=[],
+            contact_links=[
+                ContactLink(label="LinkedIn", url="https://www.linkedin.com/in/thin")
+            ],
+        ),
+        experiences=[experience],
+        all_experiences=[experience],
+        experience_count=1,
+        projects=[],
+        skills=[],
+        education=[],
+    )
+
+
+def test_homepage_omits_empty_fields_and_sections(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_homepage",
+        lambda _: thin_homepage_content(),
+    )
+
+    with TestClient(create_app()) as app_client:
+        response = app_client.get("/")
+
+    assert response.status_code == 200
+    assert "Thin Candidate" in response.text
+    assert "Target roles" not in response.text
+    assert "<p></p>" not in response.text.replace("\n", "").replace(" ", "")
+    assert "<dd></dd>" not in response.text.replace("\n", "").replace(" ", "")
+    assert 'id="home-projects-heading"' not in response.text
+    assert 'id="home-skills-heading"' not in response.text
+    assert 'id="home-education-heading"' not in response.text
+    assert 'id="home-impact-heading"' not in response.text
+    assert "North Star Co" in response.text
+
+
+def test_detail_pages_omit_blank_optional_text(monkeypatch) -> None:
+    content = published_homepage_content()
+    experience = content.experiences[0]
+    experience.summary = ""
+    education = content.education[0]
+    education.field_of_study = ""
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_experiences", lambda _: [experience]
+    )
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_education", lambda _: [education]
+    )
+    monkeypatch.setattr("app.services.resume.ResumeService.get_projects", lambda _: [])
+
+    with TestClient(create_app()) as app_client:
+        experience_response = app_client.get("/experience")
+        education_response = app_client.get("/education")
+        projects_response = app_client.get("/projects")
+
+    compact = experience_response.text.replace("\n", "").replace(" ", "")
+    assert "<p></p>" not in compact
+    assert "B.S. in" not in education_response.text
+    assert "B.S." in education_response.text
+    assert projects_response.status_code == 200
+    assert "No projects are published yet." in projects_response.text
+
+
+def test_static_assets_carry_a_content_version(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.services.resume.ResumeService.get_homepage",
+        lambda _: published_homepage_content(),
+    )
+
+    with TestClient(create_app()) as app_client:
+        response = app_client.get("/")
+
+    assert "styles.css?v=" in response.text
+    assert "timeline.js?v=" in response.text

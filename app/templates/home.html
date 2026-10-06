@@ -1,118 +1,160 @@
 {% extends "base.html" %}
+{% from "_macros.html" import plural, period, contact_actions, education_finding %}
 
-{% block title %}{{ content.profile.full_name if content.profile else "Home" }} | Career Platform{% endblock %}
+{% block title %}{{ site_name }}{% endblock %}
 
 {% block content %}
-  <section class="page-intro">
-    {% if content.profile %}
-      <h1>{{ content.profile.full_name }}</h1>
-      <p class="eyebrow">{{ content.profile.headline }}</p>
-      {% if content.outage_message %}
-        <p class="status-banner" role="status">{{ content.outage_message }}</p>
+  {% set profile = content.profile %}
+  {% if content.outage_message %}
+    <p class="status-note" role="status"><strong>Note:</strong> {{ content.outage_message }}</p>
+  {% endif %}
+
+  <section class="title-block" aria-labelledby="page-title">
+    {% if profile %}
+      {% set lead = profile.headline or profile.full_name %}
+      <h1 id="page-title" class="action-title{% if lead | length > 72 %} is-long{% endif %}">{{ lead }}</h1>
+      <p class="byline">
+        <span class="byline-name">{{ profile.full_name }}</span>
+        {% if profile.target_roles %}<span>{{ profile.target_roles | join(", ") }}</span>{% endif %}
+        {% if profile.location %}<span>{{ profile.location }}</span>{% endif %}
+      </p>
+      {% if profile.summary %}
+        <p class="lede">{{ profile.summary }}</p>
       {% endif %}
-      <p>{{ content.profile.summary }}</p>
-      <dl class="meta-list">
-        <div>
-          <dt>Location</dt>
-          <dd>{{ content.profile.location }}</dd>
-        </div>
-        <div>
-          <dt>Target roles</dt>
-          <dd>{{ content.profile.target_roles | join(", ") }}</dd>
-        </div>
-      </dl>
-      {% if content.profile.contact_links %}
-        <ul class="inline-list" aria-label="Contact links">
-          {% for link in content.profile.contact_links %}
-            <li>
-              <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.label }}</a>
-            </li>
-          {% endfor %}
-        </ul>
+      {% if profile.contact_links %}
+        {{ contact_actions(profile.contact_links) }}
       {% endif %}
     {% else %}
-      <h1>Career Platform</h1>
+      <h1 id="page-title" class="action-title">{{ site_name }}</h1>
     {% endif %}
   </section>
 
   {% if not content.is_fallback %}
-    {% set impact_items = [] %}
-    {% for experience in content.experiences %}
-      {% for accomplishment in experience.accomplishments %}
-        {% if accomplishment.metric %}
-          {% set _ = impact_items.append(accomplishment) %}
-        {% endif %}
-      {% endfor %}
-    {% endfor %}
-    {% if impact_items %}
-      <section aria-labelledby="home-impact-heading">
-        <div class="section-heading">
-          <h2 id="home-impact-heading">Impact summary</h2>
-        </div>
-        <ul class="impact-list">
-          {% for accomplishment in impact_items %}
-            <li><strong>{{ accomplishment.metric }}</strong> — {{ accomplishment.statement }}</li>
-          {% endfor %}
-        </ul>
+    {% if content.highlights %}
+      <section class="section" aria-labelledby="home-impact-heading">
+        <h2 id="home-impact-heading" class="section-title">{{ plural(content.highlights | length, "measured result") }} from {{ plural(highlight_organization_count, "organization") }}</h2>
+        <figure class="exhibit">
+          <figcaption class="exhibit-caption">Selected results</figcaption>
+          <ol class="findings">
+            {% for highlight in content.highlights %}
+              <li class="finding">
+                <p class="finding-text"><strong class="figure">{{ highlight.metric }}</strong> {{ highlight.statement }}</p>
+                <p class="finding-source">{{ highlight.organization }}</p>
+              </li>
+            {% endfor %}
+          </ol>
+          <p class="exhibit-source">Source: accomplishment metrics in published experience records.</p>
+        </figure>
       </section>
     {% endif %}
 
-    <section aria-labelledby="home-experience-heading">
-      <div class="section-heading">
-        <h2 id="home-experience-heading">Experience</h2>
-        <a href="/experience">View all experience</a>
-      </div>
-      <div class="stack">
-        {% for experience in content.experiences %}
-          <article class="card">
-            <h3>{{ experience.role_title }}</h3>
-            <p class="muted">{{ experience.organization }} · {{ experience.location }}</p>
-            <p>{{ experience.summary }}</p>
-          </article>
-        {% endfor %}
-      </div>
-    </section>
+    {% if content.experiences %}
+      <section class="section" aria-labelledby="home-experience-heading">
+        <div class="section-head">
+          <h2 id="home-experience-heading" class="section-title">{{ career_span }}</h2>
+          <a class="text-link" href="/experience">All {{ plural(content.experience_count, "role") }}, with results</a>
+        </div>
+        {% if timeline %}
+          {% include "_timeline.html" %}
+        {% endif %}
+        {% if selected_roles %}
+          <h3 class="list-title">Selected roles</h3>
+          <ol class="record-list">
+            {% for experience, note in selected_roles %}
+              <li class="record">
+                <p class="record-period">{{ period(experience) }}</p>
+                <div class="record-body">
+                  <h4 class="record-title">{{ experience.role_title }}</h4>
+                  <p class="record-meta">{{ experience.organization }}{% if experience.location %}, {{ experience.location }}{% endif %}</p>
+                  <p class="role-result">{% if note.metric %}<strong class="figure">{{ note.metric }}</strong> {% endif %}{{ note.statement }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        {% endif %}
+      </section>
+    {% endif %}
 
-    <section aria-labelledby="home-projects-heading">
-      <div class="section-heading">
-        <h2 id="home-projects-heading">Featured Projects</h2>
-        <a href="/projects">View all projects</a>
-      </div>
-      <div class="card-grid">
-        {% for project in content.projects %}
-          <article class="card">
-            <h3><a href="/projects/{{ project.slug }}">{{ project.title }}</a></h3>
-            <p>{{ project.summary }}</p>
-          </article>
-        {% endfor %}
-      </div>
-    </section>
+    {% if content.projects %}
+      <section class="section" aria-labelledby="home-projects-heading">
+        <div class="section-head">
+          <h2 id="home-projects-heading" class="section-title">{{ plural(content.projects | length, "featured project") }}, from business problem to outcome</h2>
+          <a class="text-link" href="/projects">All projects</a>
+        </div>
+        <ol class="record-list">
+          {% for project in content.projects %}
+            <li class="record">
+              <div class="record-body record-body-wide">
+                <h3 class="record-title"><a href="/projects/{{ project.slug }}">{{ project.title }}</a></h3>
+                {% if project.summary %}<p class="record-meta">{{ project.summary }}</p>{% endif %}
+                <dl class="need-value">
+                  {% if project.problem %}
+                    <div>
+                      <dt>Problem</dt>
+                      <dd>{{ project.problem }}</dd>
+                    </div>
+                  {% endif %}
+                  {% if project.outcome %}
+                    <div>
+                      <dt>Outcome</dt>
+                      <dd>{{ project.outcome }}</dd>
+                    </div>
+                  {% endif %}
+                </dl>
+              </div>
+            </li>
+          {% endfor %}
+        </ol>
+      </section>
+    {% endif %}
 
-    <section aria-labelledby="home-skills-heading">
-      <div class="section-heading">
-        <h2 id="home-skills-heading">Skills</h2>
-        <a href="/skills">View all skills</a>
-      </div>
-      <ul class="tag-list">
-        {% for skill in content.skills %}
-          <li>{{ skill.name }}</li>
-        {% endfor %}
-      </ul>
-    </section>
+    {% if skill_groups %}
+      <section class="section" aria-labelledby="home-skills-heading">
+        <div class="section-head">
+          <h2 id="home-skills-heading" class="section-title">{{ plural(content.skills | length, "skill") }} across {{ plural(skill_groups | length, "area") }}</h2>
+          <a class="text-link" href="/skills">Skills with context</a>
+        </div>
+        <div class="skill-columns">
+          {% for category, skills in skill_groups %}
+            <div class="skill-column">
+              <h3 class="skill-category">{{ category | replace("_", " ") | capitalize }}</h3>
+              <ul class="plain-list">
+                {% for skill in skills %}
+                  <li>{{ skill.name }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
 
-    <section aria-labelledby="home-education-heading">
-      <div class="section-heading">
-        <h2 id="home-education-heading">Education</h2>
-        <a href="/education">View all education</a>
-      </div>
-      <div class="stack">
-        {% for record in content.education %}
-          <article class="card">
-            <h3>{{ record.institution_name }}</h3>
-            <p>{{ record.degree_or_program }} in {{ record.field_of_study }}</p>
-          </article>
-        {% endfor %}
-      </div>
-    </section>
+    {% if content.education %}
+      <section class="section" aria-labelledby="home-education-heading">
+        <div class="section-head">
+          <h2 id="home-education-heading" class="section-title">{{ education_finding(content.education) }}</h2>
+          <a class="text-link" href="/education">Education details</a>
+        </div>
+        <ol class="record-list">
+          {% for record in content.education %}
+            <li class="record">
+              <p class="record-period">{{ period(record) }}</p>
+              <div class="record-body">
+                <h3 class="record-title">{{ record.institution_name }}</h3>
+                <p class="record-meta">{{ record.degree_or_program }}{% if record.field_of_study %} in {{ record.field_of_study }}{% endif %}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ol>
+      </section>
+    {% endif %}
+
+    {% if profile and profile.contact_links %}
+      <section class="section closing" aria-labelledby="home-next-heading">
+        <h2 id="home-next-heading" class="section-title">Next steps</h2>
+        <p class="lede">Reach {{ profile.full_name.split(" ")[0] }} on {{ profile.contact_links | map(attribute="label") | join(" or ") }}.</p>
+        {{ contact_actions(profile.contact_links) }}
+      </section>
+    {% endif %}
   {% endif %}
 {% endblock %}

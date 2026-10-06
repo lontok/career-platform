@@ -244,3 +244,8 @@ data/*.sqlite3-shm
 data/*.sqlite3-wal
 data/backups/
 data/backup-verification/
+data/*.pdf
+
+# Design review captures
+.playwright-mcp/
+.impeccable/review/

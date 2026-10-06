@@ -56,7 +56,18 @@ class PublicProfile(BaseModel):
         )
 
 
-class FallbackProfile(PublicProfile):
+class RequiredProfile(PublicProfile):
+    """Profile rules that seed data and the fallback snapshot must both meet."""
+
+    @field_validator("full_name", "headline", "summary", "location")
+    @classmethod
+    def _require_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("must not be blank")
+        return value
+
+
+class FallbackProfile(RequiredProfile):
     @field_validator("contact_links")
     @classmethod
     def _require_contact_links(cls, value: list[ContactLink]) -> list[ContactLink]:
@@ -65,9 +76,18 @@ class FallbackProfile(PublicProfile):
         return value
 
 
+class Highlight(BaseModel):
+    metric: str
+    statement: str
+    organization: str
+
+
 class HomepageContent(BaseModel):
     profile: PublicProfile | FallbackProfile | None = None
     experiences: list[Experience] = Field(default_factory=list)
+    all_experiences: list[Experience] = Field(default_factory=list)
+    experience_count: int = 0
+    highlights: list[Highlight] = Field(default_factory=list)
     projects: list[Project] = Field(default_factory=list)
     skills: list[Skill] = Field(default_factory=list)
     education: list[Education] = Field(default_factory=list)

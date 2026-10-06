@@ -1,0 +1,38 @@
+{# Career timeline exhibit. Expects `timeline` from app.services.timeline.build_timeline. #}
+<figure class="exhibit">
+  <figcaption class="exhibit-caption">
+    Career timeline, {{ timeline.start_year }} to {{ timeline.end_year - 1 }}
+    <span class="exhibit-key">
+      {% if timeline.rows | selectattr("featured") | list %}
+        <span class="key-item"><span class="key-swatch key-swatch-featured" aria-hidden="true"></span>Featured role</span>
+        <span class="key-item"><span class="key-swatch" aria-hidden="true"></span>Other role</span>
+      {% endif %}
+      <span class="key-item"><span class="key-swatch key-swatch-today" aria-hidden="true"></span>Today</span>
+    </span>
+  </figcaption>
+  <div class="timeline" data-timeline>
+    <div class="timeline-axis" aria-hidden="true">
+      {% for tick in timeline.ticks %}
+        <span class="timeline-tick" style="--at: {{ '%.3f' | format(tick.offset) }}%">{{ tick.year }}</span>
+      {% endfor %}
+    </div>
+    <ol class="timeline-rows">
+      {% for row in timeline.rows %}
+        <li class="timeline-row{% if row.featured %} is-featured{% endif %}">
+          <a class="timeline-label" href="/experience#{{ row.anchor }}">
+            <span class="timeline-role">{{ row.role_title }}</span>
+            <span class="timeline-meta">{{ row.organization }}, {{ row.start_label }} to {{ row.end_label }}</span>
+          </a>
+          <span class="timeline-track" aria-hidden="true">
+            {% for tick in timeline.ticks %}
+              <span class="timeline-gridline" style="--at: {{ '%.3f' | format(tick.offset) }}%"></span>
+            {% endfor %}
+            <span class="timeline-today" style="--at: {{ '%.3f' | format(timeline.today_offset) }}%"></span>
+            <span class="timeline-bar" style="--start: {{ '%.3f' | format(row.offset) }}%; --span: {{ '%.3f' | format(row.width) }}%"></span>
+          </span>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+  <p class="exhibit-source">Source: published experience records (n={{ timeline.rows | length }}).</p>
+</figure>

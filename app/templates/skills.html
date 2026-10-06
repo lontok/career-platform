@@ -1,24 +1,36 @@
 {% extends "base.html" %}
+{% from "_macros.html" import plural %}
 
-{% block title %}Skills | Career Platform{% endblock %}
+{% block title %}Skills | {{ site_name }}{% endblock %}
 
 {% block content %}
-  <h1>Skills</h1>
-  <div class="stack">
-    {% for category, skills in skill_groups %}
-      <section class="card" aria-labelledby="category-{{ loop.index }}">
-        <h2 id="category-{{ loop.index }}">{{ category | replace("_", " ") | title }}</h2>
-        <ul class="stacked-list">
-          {% for skill in skills %}
-            <li>
-              <strong>{{ skill.name }}</strong>
-              {% if skill.context %}
-                <p>{{ skill.context }}</p>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      </section>
-    {% endfor %}
-  </div>
+  <header class="page-head">
+    {% if skill_groups %}
+      <h1>{{ plural(skill_count, "skill") }} across {{ plural(skill_groups | length, "area") }}</h1>
+      <p class="lede">Each skill lists the context where it was used.</p>
+    {% else %}
+      <h1>Skills</h1>
+      <p class="lede">No skills are published yet.</p>
+    {% endif %}
+  </header>
+
+  {% if skill_groups %}
+    <div class="skill-columns skill-columns-detailed">
+      {% for category, skills in skill_groups %}
+        <section class="skill-column" aria-labelledby="category-{{ loop.index }}">
+          <h2 id="category-{{ loop.index }}" class="skill-category">{{ category | replace("_", " ") | capitalize }}</h2>
+          <ul class="plain-list">
+            {% for skill in skills %}
+              <li>
+                <strong>{{ skill.name }}</strong>
+                {% if skill.context %}
+                  <p>{{ skill.context }}</p>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endfor %}
+    </div>
+  {% endif %}
 {% endblock %}

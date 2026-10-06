@@ -4,6 +4,7 @@ from collections import Counter
 from datetime import date
 from pathlib import Path
 
+from pydantic import ValidationError
 from sqlalchemy import select, update
 
 from app.core.urls import normalize_http_url
@@ -16,106 +17,210 @@ from app.models import (
     Project,
     Skill,
 )
-from app.schemas import load_fallback_profile
+from app.schemas import RequiredProfile, load_fallback_profile
 
 FALLBACK_PROFILE_PATH = Path(__file__).resolve().parent / "fallback_profile.json"
 
 SEED_PROFILE = {
     "seed_key": "profile:primary",
-    "full_name": "Alex Parker",
-    "headline": "Analytics-focused software builder for business teams",
-    "summary": (
-        "Builds dependable data products and automation that help business "
-        "partners make faster, better-informed decisions."
+    "full_name": "Greg Lontok",
+    "headline": (
+        "Clinical Associate Professor - Information Systems & Business Analytics "
+        "at Loyola Marymount University"
     ),
-    "location": "Los Angeles, CA",
-    "target_roles": "Analytics Engineer, Data Analyst, Business Systems Analyst",
-    "email": "alex.parker@example.com",
-    "linkedin_url": "https://www.linkedin.com/in/alexparker-analytics",
-    "github_url": "https://github.com/alexparker-analytics",
+    "summary": (
+        "Spent more than a decade leading technology and data science teams in "
+        "Los Angeles media and advertising, then brought that experience to "
+        "teaching information systems and business analytics at LMU."
+    ),
+    "location": "Los Angeles Metropolitan Area",
+    # Left empty on purpose: the site should not read as a job search.
+    "target_roles": "",
+    "email": "",
+    "linkedin_url": "https://www.linkedin.com/in/lontok",
+    "github_url": None,
     "published": True,
 }
 
 SEED_SKILLS = [
     {
-        "seed_key": "skill:sql",
-        "name": "SQL",
-        "category": "analytics",
-        "context": "Warehouse modeling, QA, and decision support.",
+        "seed_key": "skill:affiliate-marketing",
+        "name": "Affiliate Marketing",
+        "category": "marketing",
+        "context": None,
         "display_order": 1,
         "published": True,
     },
     {
-        "seed_key": "skill:python",
-        "name": "Python",
-        "category": "programming",
-        "context": "Automation, data services, and testing.",
+        "seed_key": "skill:social-media-marketing",
+        "name": "Social Media Marketing",
+        "category": "marketing",
+        "context": None,
         "display_order": 2,
+        "published": True,
+    },
+    {
+        "seed_key": "skill:sem",
+        "name": "SEM",
+        "category": "marketing",
+        "context": None,
+        "display_order": 3,
+        "published": True,
+    },
+    {
+        "seed_key": "skill:professional-scrum-master-i",
+        "name": "Professional Scrum Master I (PSM I)",
+        "category": "certifications",
+        "context": None,
+        "display_order": 4,
         "published": True,
     },
 ]
 
 SEED_EXPERIENCES = [
     {
-        "seed_key": "experience:west-coast-commerce:analytics-engineering-intern",
-        "role_title": "Analytics Engineering Intern",
-        "organization": "West Coast Commerce",
+        "seed_key": "experience:lmu:clinical-associate-professor",
+        "role_title": "Clinical Associate Professor - Information Systems & Business Analytics",
+        "organization": "Loyola Marymount University",
         "location": "Los Angeles, CA",
         "start_date": date(2026, 6, 1),
         "end_date": None,
         "is_current": True,
-        "summary": "Supported reporting automation and data quality initiatives.",
+        "summary": "",
         "display_order": 1,
         "published": True,
-        "skill_names": ["SQL", "Python"],
-        "accomplishments": [
-            {
-                "statement": "Automated weekly KPI reporting for business stakeholders.",
-                "metric": "6 hours saved per week",
-                "display_order": 1,
-            }
-        ],
-    }
+        "featured": False,
+        "skill_names": [],
+        "accomplishments": [],
+    },
+    {
+        "seed_key": "experience:lmu:clinical-assistant-professor",
+        "role_title": "Clinical Assistant Professor - Information Systems & Business Analytics",
+        "organization": "Loyola Marymount University",
+        "location": "Los Angeles, CA",
+        "start_date": date(2019, 8, 1),
+        "end_date": date(2026, 6, 1),
+        "is_current": False,
+        "summary": "",
+        "display_order": 2,
+        "published": True,
+        "featured": False,
+        "skill_names": [],
+        "accomplishments": [],
+    },
+    {
+        "seed_key": "experience:lmu:lecturer",
+        "role_title": "Lecturer - Information Systems & Business Analytics",
+        "organization": "Loyola Marymount University",
+        "location": "Los Angeles, CA",
+        "start_date": date(2018, 1, 1),
+        "end_date": date(2019, 8, 1),
+        "is_current": False,
+        "summary": "",
+        "display_order": 3,
+        "published": True,
+        "featured": False,
+        "skill_names": [],
+        "accomplishments": [],
+    },
+    {
+        "seed_key": "experience:globalwide-media:vp-technology-data-science",
+        "role_title": "VP Technology and Data Science",
+        "organization": "GlobalWide Media",
+        "location": "Westlake Village, CA",
+        "start_date": date(2007, 1, 1),
+        "end_date": date(2018, 2, 1),
+        "is_current": False,
+        "summary": "",
+        "display_order": 4,
+        "published": True,
+        "featured": False,
+        "skill_names": [],
+        "accomplishments": [],
+    },
+    {
+        "seed_key": "experience:valueclick:development-manager",
+        "role_title": "Development Manager",
+        "organization": "ValueClick",
+        "location": "Westlake Village, CA",
+        "start_date": date(2004, 1, 1),
+        "end_date": date(2006, 12, 1),
+        "is_current": False,
+        "summary": "",
+        "display_order": 5,
+        "published": True,
+        "featured": False,
+        "skill_names": [],
+        "accomplishments": [],
+    },
+    {
+        "seed_key": "experience:hispeed-media:vp-engineering-it",
+        "role_title": "VP of Engineering and Information Technology",
+        "organization": "HiSpeed Media",
+        "location": "Los Angeles, CA",
+        "start_date": date(2002, 7, 1),
+        "end_date": date(2006, 12, 1),
+        "is_current": False,
+        "summary": "",
+        "display_order": 6,
+        "published": True,
+        "featured": False,
+        "skill_names": [],
+        "accomplishments": [],
+    },
+    {
+        "seed_key": "experience:aesop-marketing:web-developer-sysadmin",
+        "role_title": "Web Developer / System Administrator",
+        "organization": "Aesop Marketing",
+        "location": "Hollywood, CA",
+        "start_date": date(2000, 1, 1),
+        "end_date": date(2002, 1, 1),
+        "is_current": False,
+        "summary": "",
+        "display_order": 7,
+        "published": True,
+        "featured": False,
+        "skill_names": [],
+        "accomplishments": [],
+    },
 ]
 
-SEED_PROJECTS = [
-    {
-        "seed_key": "project:career-platform",
-        "slug": "career-platform",
-        "title": "Career Platform Resume Site",
-        "summary": "Database-driven resume content for analytics-focused roles.",
-        "problem": "Resume updates were slow and duplicated across pages.",
-        "contribution": "Designed the content model, seed flow, and read service.",
-        "methods": "FastAPI, SQLAlchemy, SQLite, pytest",
-        "outcome": "Created a maintainable content workflow for future public pages.",
-        "repository_url": None,
-        "live_demo_url": None,
-        "published": True,
-        "featured": True,
-        "display_order": 1,
-        "skill_names": ["SQL", "Python"],
-    }
-]
+SEED_PROJECTS: list[dict] = []
 
 SEED_EDUCATION = [
     {
-        "seed_key": "education:california-state-university:information-systems-bs",
-        "institution_name": "California State University",
-        "degree_or_program": "B.S.",
-        "field_of_study": "Information Systems",
-        "start_date": date(2022, 8, 22),
-        "end_date": date(2026, 5, 18),
-        "gpa": "3.8",
-        "honors": "Dean's List",
-        "relevant_coursework": "Database Systems, Business Analytics, Statistics",
+        "seed_key": "education:regis-university:data-science-ms",
+        "institution_name": "Regis University",
+        "degree_or_program": "MS",
+        "field_of_study": "Data Science",
+        "start_date": date(2018, 1, 1),
+        "end_date": date(2020, 1, 1),
+        "gpa": None,
+        "honors": None,
+        "relevant_coursework": None,
         "certifications": None,
         "published": True,
         "display_order": 1,
-    }
+    },
+    {
+        "seed_key": "education:loyola-marymount-university:business-administration-ba",
+        "institution_name": "Loyola Marymount University",
+        "degree_or_program": "BA",
+        "field_of_study": "Business Administration (MIS)",
+        "start_date": date(1997, 1, 1),
+        "end_date": date(2001, 1, 1),
+        "gpa": None,
+        "honors": None,
+        "relevant_coursework": None,
+        "certifications": None,
+        "published": True,
+        "display_order": 2,
+    },
 ]
 
 
 def validate_seed_data() -> None:
+    _ensure_required_profile_fields()
     _ensure_unique_project_slugs()
     _ensure_seed_keys()
     _ensure_valid_references()
@@ -141,6 +246,25 @@ def seed_demo_content(
 def main() -> None:
     seed_demo_content()
     print("Seeded published resume content.")
+
+
+def _ensure_required_profile_fields() -> None:
+    try:
+        RequiredProfile.model_validate(
+            {
+                field: SEED_PROFILE[field]
+                for field in (
+                    "full_name",
+                    "headline",
+                    "summary",
+                    "location",
+                    "target_roles",
+                )
+            }
+        )
+    except ValidationError as exc:
+        field = exc.errors()[0]["loc"][0]
+        raise ValueError(f"Seed profile is missing {field}") from exc
 
 
 def _ensure_unique_project_slugs() -> None:
