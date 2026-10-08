@@ -61,12 +61,12 @@ def upgrade() -> None:
     op.execute(
         """
         UPDATE profiles
-        SET published = 0
-        WHERE published = 1
+        SET published = false
+        WHERE published = true
           AND id != (
               SELECT id
               FROM profiles
-              WHERE published = 1
+              WHERE published = true
               ORDER BY
                   CASE WHEN seed_key = 'profile:primary' THEN 0 ELSE 1 END,
                   id
@@ -82,6 +82,7 @@ def upgrade() -> None:
         ["published"],
         unique=True,
         sqlite_where=sa.text("published = 1"),
+        postgresql_where=sa.text("published"),
     )
     op.create_index("ux_skills_seed_key", "skills", ["seed_key"], unique=True)
     op.create_index("ux_experiences_seed_key", "experiences", ["seed_key"], unique=True)
