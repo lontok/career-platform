@@ -2,7 +2,7 @@
 
 > For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-This is a first draft and is open to revisions. A dated result line goes under each step as it runs. Nothing has run yet.
+This is a first draft and is open to revisions. A dated result line goes under each step as it runs. Tasks 1 through 4 ran on 2026-10-08 and were pushed to `main`, with two fixes from the branch review. Step 5.1 also ran that day. Steps 5.2 onward haven't run.
 
 ## What's there now
 
@@ -83,7 +83,7 @@ Interfaces:
 
 - Produces: `Settings().database_url` always uses the `postgresql+psycopg://` driver for Postgres URLs and leaves SQLite URLs alone. Tasks 2 and 3 rely on this.
 
-- [ ] Step 1.1: Write the failing test.
+- [x] Step 1.1: Write the failing test.
 
 `tests/test_config.py`:
 
@@ -115,17 +115,17 @@ def test_other_urls_are_unchanged(url: str) -> None:
     assert Settings(database_url=url).database_url == url
 ```
 
-- [ ] Step 1.2: Run it and confirm it fails.
+- [x] Step 1.2: Run it and confirm it fails.
 
 Run: `uv run pytest tests/test_config.py -v`
 Expected: the two `test_postgres_urls_use_the_psycopg_driver` cases FAIL because the URL comes back unchanged. The three unchanged-URL cases pass.
 
-- [ ] Step 1.3: Add the driver.
+- [x] Step 1.3: Add the driver.
 
 Run: `uv add "psycopg[binary]>=3.2"`
 Check: `pyproject.toml` lists `psycopg[binary]` under `dependencies`, and `uv.lock` changed.
 
-- [ ] Step 1.4: Normalize the URL in `app/core/config.py`.
+- [x] Step 1.4: Normalize the URL in `app/core/config.py`.
 
 ```python
 from pydantic import field_validator
@@ -150,17 +150,19 @@ class Settings(BaseSettings):
         return value
 ```
 
-- [ ] Step 1.5: Run the tests and confirm they pass.
+- [x] Step 1.5: Run the tests and confirm they pass.
 
 Run: `uv run pytest tests/test_config.py -v && uv run pytest -q && uv run ruff check .`
 Expected: all PASS, and ruff reports no errors.
 
-- [ ] Step 1.6: Commit.
+- [x] Step 1.6: Commit.
 
 ```bash
 git add pyproject.toml uv.lock app/core/config.py tests/test_config.py
 git commit -m "feat: connect to Postgres through psycopg"
 ```
+
+Result, 2026-10-08: commit `ffbab38`. The two Postgres-prefix cases failed first and then passed, and the suite went from 78 to 83 tests. The branch review later added a guard here: on Railway, where `RAILWAY_ENVIRONMENT_ID` is set, `Settings` refuses any database that isn't Postgres. Without it, a missing `DATABASE_URL` would fall back to a throwaway SQLite file while `/health` stayed green. Alembic hits the same check, so the pre-deploy step fails the deploy instead.
 
 ---
 
@@ -181,7 +183,7 @@ Interfaces:
 
 Editing migration `20260917_02` is safe here. The VM's SQLite already ran it and never runs it again, and the SQLite behavior doesn't change: `true` and `false` are `1` and `0` in SQLite 3.23 and later. The only database that will run the new text is the empty Railway Postgres.
 
-- [ ] Step 2.1: Start a throwaway Postgres 18 on the laptop.
+- [x] Step 2.1: Start a throwaway Postgres 18 on the laptop.
 
 ```bash
 docker run -d --name career-platform-pg-test -e POSTGRES_PASSWORD='te%st' -p 55432:5432 postgres:18
@@ -192,7 +194,7 @@ The password has a `%` on purpose (Review focus 1). In a URL it's written `%25`.
 Check: `docker ps --filter name=career-platform-pg-test` shows the container as `Up`.
 Undo: `docker rm -f career-platform-pg-test`.
 
-- [ ] Step 2.2: Write the shared Postgres test helpers.
+- [x] Step 2.2: Write the shared Postgres test helpers.
 
 `tests/postgres_support.py`:
 
@@ -239,7 +241,7 @@ def postgres_url(monkeypatch) -> str:
     return POSTGRES_URL
 ```
 
-- [ ] Step 2.3: Write the failing Postgres tests.
+- [x] Step 2.3: Write the failing Postgres tests.
 
 `tests/test_postgres.py`:
 
@@ -316,12 +318,12 @@ def test_seed_runs_against_postgres(postgres_url: str, sample_seed) -> None:
 
 The seed runs twice to prove the upserts are repeatable on Postgres. This is a local test database, so the rule against seeding Railway doesn't apply.
 
-- [ ] Step 2.4: Run the Postgres tests and confirm they fail.
+- [x] Step 2.4: Run the Postgres tests and confirm they fail.
 
 Run: `uv run pytest tests/test_postgres.py -v`
 Expected: every test FAILS during `command.upgrade`. With the `%` password the first error comes from `configparser`, which calls the URL invalid interpolation syntax. Once that's fixed in Step 2.5, the next is `psycopg.errors.UndefinedFunction: operator does not exist: boolean = integer`.
 
-- [ ] Step 2.5: Escape `%` in `alembic/env.py`.
+- [x] Step 2.5: Escape `%` in `alembic/env.py`.
 
 Replace line 17:
 
@@ -330,7 +332,7 @@ Replace line 17:
 config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
 ```
 
-- [ ] Step 2.6: Use boolean literals and a Postgres partial index in migration `20260917_02`.
+- [x] Step 2.6: Use boolean literals and a Postgres partial index in migration `20260917_02`.
 
 Replace the `UPDATE profiles SET published = 0` block and the `ux_profiles_single_published` index with:
 
@@ -363,7 +365,7 @@ Replace the `UPDATE profiles SET published = 0` block and the `ux_profiles_singl
     )
 ```
 
-- [ ] Step 2.7: Match the model in `app/models/profile.py`.
+- [x] Step 2.7: Match the model in `app/models/profile.py`.
 
 ```python
         Index(
@@ -375,17 +377,19 @@ Replace the `UPDATE profiles SET published = 0` block and the `ux_profiles_singl
         ),
 ```
 
-- [ ] Step 2.8: Run every test and confirm they pass.
+- [x] Step 2.8: Run every test and confirm they pass.
 
 Run: `uv run pytest tests/test_postgres.py -v && uv run pytest -q && uv run ruff check .`
 Expected: the three Postgres tests PASS. The full suite passes, including `tests/test_migrations.py` on SQLite. Without `TEST_POSTGRES_URL` set, the Postgres tests show as skipped.
 
-- [ ] Step 2.9: Commit.
+- [x] Step 2.9: Commit.
 
 ```bash
 git add alembic/env.py alembic/versions/20260917_02_add_seed_keys.py app/models/profile.py tests/postgres_support.py tests/test_postgres.py
 git commit -m "fix: run the migrations on Postgres"
 ```
+
+Result, 2026-10-08: commit `d3d1f2d`. Docker Desktop wasn't running, so it was started, and Postgres 18 ran on `127.0.0.1:55432` only. The tests first failed on configparser's `invalid interpolation syntax` for the `%` password, as planned. After the fixes, all three passed, and the full suite had 86 tests. Ruff's import-order and combined-`with` fixes were applied to the test code.
 
 ---
 
@@ -401,7 +405,7 @@ Interfaces:
 - Consumes: `Settings` (Task 1), `tests/postgres_support.py` (Task 2), `Base.metadata` from `app/db/base.py` with every model imported through `app.models`.
 - Produces: `copy_database(source: Engine, target: Engine) -> dict[str, int]`, which returns rows copied per table, and `main(argv: list[str] | None = None) -> None`. Run it as `uv run python -m app.copy_sqlite <path-to-sqlite-file>` with `DATABASE_URL` set to the Postgres target.
 
-- [ ] Step 3.1: Write the failing tests.
+- [x] Step 3.1: Write the failing tests.
 
 `tests/test_copy_sqlite.py`:
 
@@ -520,12 +524,12 @@ def test_copy_refuses_mismatched_revisions(
     target.dispose()
 ```
 
-- [ ] Step 3.2: Run them and confirm they fail.
+- [x] Step 3.2: Run them and confirm they fail.
 
 Run: `uv run pytest tests/test_copy_sqlite.py -v`
 Expected: collection fails with `ModuleNotFoundError: No module named 'app.copy_sqlite'`.
 
-- [ ] Step 3.3: Write `app/copy_sqlite.py`.
+- [x] Step 3.3: Write `app/copy_sqlite.py`.
 
 ```python
 """Copy every resume row from a SQLite file into an empty, migrated Postgres.
@@ -622,17 +626,19 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] Step 3.4: Run every test and confirm they pass.
+- [x] Step 3.4: Run every test and confirm they pass.
 
 Run: `uv run pytest tests/test_copy_sqlite.py -v && uv run pytest -q && uv run ruff check .`
 Expected: all five copy tests PASS with `TEST_POSTGRES_URL` set. Without it, the two `main` tests pass and the three Postgres tests skip.
 
-- [ ] Step 3.5: Commit.
+- [x] Step 3.5: Commit.
 
 ```bash
 git add app/copy_sqlite.py tests/test_copy_sqlite.py
 git commit -m "feat: add a one-time SQLite to Postgres copy"
 ```
+
+Result, 2026-10-08: commit `2cfcb8f`. The tests failed on the missing module, then all five passed. Turning off the sequence reset made the sequence test fail on `skills_pkey`, which shows the test catches it. A trial run copied the real VM backup into the local Postgres: the counts matched the table at the top, a second run was refused with `Target table education is not empty`, and the app rendered the `career-platform` project and Greg's name from Postgres.
 
 ---
 
@@ -650,7 +656,7 @@ Interfaces:
 - Consumes: `alembic upgrade head` from Task 2 and `/health` from `app/main.py`.
 - Produces: the settings Railway reads from the repo on every deploy. Section 5 relies on them.
 
-- [ ] Step 4.1: Write the failing test.
+- [x] Step 4.1: Write the failing test.
 
 Add to the end of `tests/test_deploy_assets.py`, and add `import json` to its imports:
 
@@ -666,12 +672,12 @@ def test_railway_migrates_without_seeding_and_trusts_its_proxy() -> None:
     assert deploy["healthcheckPath"] == "/health"
 ```
 
-- [ ] Step 4.2: Run it and confirm it fails.
+- [x] Step 4.2: Run it and confirm it fails.
 
 Run: `uv run pytest tests/test_deploy_assets.py -v`
 Expected: the new test FAILS with `FileNotFoundError: railway.json`.
 
-- [ ] Step 4.3: Write `railway.json`.
+- [x] Step 4.3: Write `railway.json`.
 
 ```json
 {
@@ -690,12 +696,12 @@ Expected: the new test FAILS with `FileNotFoundError: railway.json`.
 
 Railway's docs confirm that `$PORT` expands in the start command and that the pre-deploy command can reach service variables and the private network. Uvicorn already reads proxy headers. `--forwarded-allow-ips "*"` makes it trust them from Railway's edge, which isn't on `127.0.0.1`.
 
-- [ ] Step 4.4: Run the tests and confirm they pass.
+- [x] Step 4.4: Run the tests and confirm they pass.
 
 Run: `uv run pytest -q && uv run ruff check .`
 Expected: all PASS.
 
-- [ ] Step 4.5: Write `deploy/railway.md`.
+- [x] Step 4.5: Write `deploy/railway.md`.
 
 ```markdown
 # Railway deployment
@@ -735,7 +741,7 @@ The web service needs one variable, `DATABASE_URL`, set to the reference
   already has rows.
 ```
 
-- [ ] Step 4.6: Update `README.md`.
+- [x] Step 4.6: Update `README.md`.
 
 Replace the `## Deployment` section with:
 
@@ -756,12 +762,14 @@ To run the Postgres tests, start a local Postgres 18 container and set
 
 Check: `uv run pytest tests/test_deploy_assets.py -q` still passes, since `test_readme_lists_release_quality_commands` reads the README.
 
-- [ ] Step 4.7: Commit.
+- [x] Step 4.7: Commit.
 
 ```bash
 git add railway.json tests/test_deploy_assets.py deploy/railway.md README.md
 git commit -m "feat: deploy to Railway with Postgres"
 ```
+
+Result, 2026-10-08: commit `c01192d`. The new test failed on the missing `railway.json`, then passed, and the suite had 92 tests. The README says the VM stays up once `lontok.xyz` points at Railway, instead of saying the VM already stopped, because DNS hasn't moved yet. The branch review also found that the skill lists under each experience and project had no sort order, so Postgres could show them in a different order than SQLite. Both relationships now sort by `display_order`, and the suite has 96 tests. The review also changed steps 5.2 and 5.3 so the Railway URL never stays exported in the shell.
 
 ---
 
@@ -791,19 +799,21 @@ These steps change live systems, so each one waits for Greg's go-ahead. Tasks 1 
   - Do:
 
     ```bash
-    export DATABASE_URL="$(grep '^RAILWAY_DATABASE_URL=' .env | cut -d= -f2- | tr -d '"')"
-    uv run alembic upgrade head
+    RAILWAY_URL="$(grep '^RAILWAY_DATABASE_URL=' .env | cut -d= -f2- | tr -d '"')"
+    DATABASE_URL="$RAILWAY_URL" uv run alembic upgrade head
     ```
 
+    The URL goes in a plain shell variable, not an exported `DATABASE_URL`. An exported one would beat `.env` for every later command in that shell, so a stray `python -m app.seed` or local `uvicorn` would hit Railway.
+
   - Why: The schema and data go in before the service switches, so the first deploy of this app finds a full database. The pre-deploy migration then has nothing to do.
-  - Check: before running Alembic, `echo "$DATABASE_URL" | sed -E 's#//[^@]*@#//#'` shows the same host and port as `DATABASE_PUBLIC_URL` on the Postgres service's Variables tab. The `.env` value is the only link to this project, so confirm it isn't another project's database. After running it, `psql "$DATABASE_URL" -Atc "SELECT version_num FROM alembic_version"` prints `20261006_04`.
-  - Undo: `psql "$DATABASE_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"`. The database was empty before this step, but confirm with Greg before running it.
+  - Check: before running Alembic, `echo "$RAILWAY_URL" | sed -E 's#//[^@]*@#//#'` shows the same host and port as `DATABASE_PUBLIC_URL` on the Postgres service's Variables tab. The `.env` value is the only link to this project, so confirm it isn't another project's database. After running it, `psql "$RAILWAY_URL" -Atc "SELECT version_num FROM alembic_version"` prints `20261006_04`.
+  - Undo: `psql "$RAILWAY_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"`. The database was empty before this step, but confirm with Greg before running it.
 
 - [ ] Step 5.3: Copy the rows.
   - Runs on: laptop, in the same shell as 5.2.
-  - Do: `uv run python -m app.copy_sqlite data/vm-resume-2026-10-08.db`
+  - Do: `DATABASE_URL="$RAILWAY_URL" uv run python -m app.copy_sqlite data/vm-resume-2026-10-08.db`, then `unset RAILWAY_URL`.
   - Why: This is the move itself. The script refuses to run if 5.2 didn't finish or if anything is already there.
-  - Check: the printed counts match the table at the top. `psql "$DATABASE_URL" -Atc "SELECT full_name FROM profiles WHERE published"` prints `Greg Lontok`, and `SELECT slug FROM projects WHERE published` prints `career-platform`.
+  - Check: the printed counts match the table at the top. before the `unset`, `psql "$RAILWAY_URL" -Atc "SELECT full_name FROM profiles WHERE published"` prints `Greg Lontok`, and `SELECT slug FROM projects WHERE published` prints `career-platform`.
   - Undo: the same as 5.2, then rerun 5.2 and 5.3.
 
 - [ ] Step 5.4: Point the web service at the Railway Postgres.
