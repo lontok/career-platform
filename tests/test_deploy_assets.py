@@ -1,3 +1,4 @@
+import json
 import sqlite3
 import stat
 import subprocess
@@ -50,3 +51,14 @@ def test_readme_lists_release_quality_commands() -> None:
     assert "uv run ruff check ." in readme
     assert "uv run pytest -q" in readme
     assert "backup-sqlite.sh" in readme
+
+
+def test_railway_migrates_without_seeding_and_trusts_its_proxy() -> None:
+    deploy = json.loads(Path("railway.json").read_text())["deploy"]
+
+    assert deploy["preDeployCommand"] == "alembic upgrade head"
+    assert "app.seed" not in json.dumps(deploy)
+    assert "--host 0.0.0.0" in deploy["startCommand"]
+    assert "--port $PORT" in deploy["startCommand"]
+    assert '--forwarded-allow-ips "*"' in deploy["startCommand"]
+    assert deploy["healthcheckPath"] == "/health"

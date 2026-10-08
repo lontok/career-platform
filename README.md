@@ -109,9 +109,13 @@ Before publishing a content update, confirm:
 
 ## Deployment
 
-Use [`deploy/README.md`](deploy/README.md) for the complete Codespaces-to-Azure
-VM runbook. It configures Uvicorn only on `127.0.0.1:8000`, with Nginx exposing
-HTTPS publicly. Production SQLite data belongs at
-`/var/lib/career-platform/resume.db`, outside the checkout, and the executable
-backup and restore scripts validate integrity while refusing destructive
-overwrites.
+The site runs on Railway with PostgreSQL. [`deploy/railway.md`](deploy/railway.md)
+covers what runs on each deploy and the one variable the service needs. Don't
+run the seed against the Railway database.
+
+The Azure VM runbook in [`deploy/README.md`](deploy/README.md) still describes
+the SQLite setup on the VM. Once `lontok.xyz` points at Railway, the VM stays
+up as a fallback until it's retired.
+
+To run the Postgres tests, start a local Postgres 18 container and set
+`TEST_POSTGRES_URL` to it. Without that variable, those tests skip.
