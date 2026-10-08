@@ -52,4 +52,5 @@ class Project(Base):
     skills: Mapped[list[Skill]] = relationship(
         secondary=project_skills,
         back_populates="projects",
+        order_by="(Skill.display_order, Skill.id)",
     )

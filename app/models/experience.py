@@ -71,6 +71,7 @@ class Experience(Base):
     skills: Mapped[list[Skill]] = relationship(
         secondary=experience_skills,
         back_populates="experiences",
+        order_by="(Skill.display_order, Skill.id)",
     )
 
 
