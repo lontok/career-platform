@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy | {{ site_name }}{% endblock %}
+
+{% block content %}
+  <article>
+    <header class="page-head">
+      <h1>Privacy</h1>
+      <p class="lede">This page explains what this site collects about visitors, why I collect it, who receives it, and what you can do about it. It describes the site as of October 15, 2026.</p>
+    </header>
+
+    <div class="prose">
+      <p>This is a personal resume site. There are no accounts, no sign-in, and no advertising, and I don't sell visitor data. The site does use Google Analytics, and it has a contact form, so there is something to explain.</p>
+
+      <h2>Google Analytics</h2>
+      <p>This site uses Google Analytics 4, property G-LZFW83PCQ2, to count visits. When you open a page, your browser loads a script from googletagmanager.com and sends Google a record of the visit. That record includes the page address and the page you came from. It also carries the date and time, your browser and operating system, your screen size, your language, and your IP address. Google uses the IP address to estimate your city and region and reports the estimate to me. Google states that it doesn't log or store the address itself.</p>
+      <p>Google Analytics also records clicks on links that leave this site, such as the LinkedIn button and the project repository links. For each click it sends Google the address of the link you followed.</p>
+      <p>To tell a return visit from a new one, Google Analytics sets two cookies in your browser, named _ga and _ga_LZFW83PCQ2. They hold a random identifier, not your name, and they last two years from your most recent visit.</p>
+      <p>I use the reports to see which pages recruiters read and which links they follow, so I can tell what's worth keeping on the site. The site is also a class example for my business analytics students, and a working analytics setup is part of what they study.</p>
+      <p>Google LLC receives and stores the analytics data on its own servers, which may be in the United States. Google handles the data under its own terms. Its privacy policy is at https://policies.google.com/privacy, and its description of how it uses data from sites like this one is at https://policies.google.com/technologies/partner-sites. I don't run ads, and I don't use the reports for advertising.</p>
+
+      <h2>The contact form</h2>
+      <p>The form at /contact asks for your name, email address, and a message. Right now the site shows what you typed back to you and does nothing else with it. It doesn't save or forward the message, so if you need me to see something, use the LinkedIn link on the home page instead. The form request passes through the web server like any other page. The server log records that a form was submitted, but not what it said.</p>
+
+      <h2>Hosting and server logs</h2>
+      <p>The site runs on Railway, a hosting company. Railway logs each request: your IP address, the page requested, the time, and your browser's name and version. The site's own server software adds a line with your IP address, the page, and whether it loaded. Railway deletes these logs after 30 days or less, depending on the hosting plan.</p>
+      <p>Apart from the Google Analytics script, the typeface and every other file on these pages come from this site itself, not from another company's servers.</p>
+
+      <h2>Your choices</h2>
+      <p>This site has no cookie banner and no opt-out switch of its own. It also doesn't read the Do Not Track or Global Privacy Control signals from your browser. The choices that work are the ones you control yourself.</p>
+      <ul>
+        <li>Block or delete cookies for this site in your browser settings. Google Analytics still counts the visit, but it can't connect it to a later one.</li>
+        <li>Install Google's opt-out add-on, which stops the analytics script from sending data: https://tools.google.com/dlpage/gaoptout</li>
+        <li>Use a content blocker that blocks googletagmanager.com. The site works without the script.</li>
+        <li>Skip the contact form. Nothing else on the site asks you for information.</li>
+      </ul>
+
+      <h2>Questions</h2>
+      <p>If something here is unclear or wrong, I'd like to hear it. The LinkedIn link on the home page is the way to reach me until the contact form forwards messages.</p>
+    </div>
+  </article>
+{% endblock %}

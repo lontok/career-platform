@@ -432,3 +432,45 @@ def test_homepage_copy_stays_plain(monkeypatch) -> None:
     for phrase in ("with results", "Next steps", "Reach ", "Source:", "every figure"):
         assert phrase.lower() not in response.text.lower()
     assert ">All experience</a>" in response.text
+
+
+def test_privacy_page_describes_collection_and_choices(client) -> None:
+    response = client.get("/privacy")
+
+    assert response.status_code == 200
+    assert "<h1>Privacy</h1>" in response.text
+    assert "Google Analytics" in response.text
+    assert "G-LZFW83PCQ2" in response.text
+    assert "Railway" in response.text
+    assert "Azure" not in response.text
+    assert "doesn't save or forward" in response.text
+    assert "https://tools.google.com/dlpage/gaoptout" in response.text
+    # The site has no consent banner or opt-out switch, and the page must say so.
+    assert "no cookie banner" in response.text
+    assert 'aria-current="page"' not in response.text
+
+
+def test_footer_links_to_privacy_page_on_every_page(client) -> None:
+    for path in ("/", "/contact", "/privacy"):
+        response = client.get(path)
+        footer = response.text[response.text.index("<footer") :]
+        assert 'href="/privacy"' in footer, path
+        header = response.text[: response.text.index("<main")]
+        assert 'href="/privacy"' not in header, path
+
+
+def test_font_is_served_from_this_site(client) -> None:
+    for path in ("/", "/privacy"):
+        page = client.get(path).text
+        assert "fonts.googleapis.com" not in page, path
+        assert "fonts.gstatic.com" not in page, path
+        assert "/static/fonts/archivo-latin.woff2" in page, path
+
+    for name in ("archivo-latin.woff2", "archivo-latin-ext.woff2"):
+        font = client.get(f"/static/fonts/{name}")
+        assert font.status_code == 200, name
+        assert font.content[:4] == b"wOF2", name
+
+    styles = client.get("/static/styles.css").text
+    assert 'url("fonts/archivo-latin.woff2")' in styles
+    assert 'url("fonts/archivo-latin-ext.woff2")' in styles

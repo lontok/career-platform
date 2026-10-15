@@ -33,7 +33,7 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 With the server running, manually inspect `/`, `/experience`, `/projects`, a
 valid project URL such as `/projects/career-platform`, `/skills`, `/education`,
-`/contact` (submit it once empty and once filled in),
+`/contact` (submit it once empty and once filled in), `/privacy`,
 `/health`, and an invalid project URL. Also perform a backup and restore drill
 without using an existing target:
 
@@ -76,6 +76,12 @@ Seeding also unpublishes every other profile and publishes the one in `app/seed.
 ## Contact form
 
 `/contact` shows a form with Name, Email, and Message. It posts to `/contact`, checks each field, and shows the sender what they submitted. Nothing is saved or emailed yet, and the confirmation page says so. Jinja escapes every value, so HTML typed into the form displays as plain text. Names can be up to 100 characters, email addresses up to 254, and messages up to 5000. The limits live in `app/services/contact.py`, and the form's `maxlength` attributes read from the same values.
+
+## Privacy page
+
+`/privacy` is a plain-language page about what the site collects, who receives it, and what visitors can do about it. The footer links to it from every page, and it stays out of the primary navigation. The text is static in `app/templates/privacy.html` and carries an "as of" date in the lede. It describes Google Analytics 4 (property `G-LZFW83PCQ2`, page views, outbound link clicks, and the `_ga` cookies), the contact form, and Railway's request logs. It also says plainly that the site has no cookie banner or opt-out switch. When the analytics tag, the contact form, or the hosting change, update this page and its date in the same change, so the page never describes a setup that isn't live.
+
+The Archivo typeface is served from `app/static/fonts/` rather than Google Fonts, so loading a page sends nothing to Google on its own. Only the normal style ships, in Latin and Latin Extended subsets, under the SIL Open Font License in `app/static/fonts/OFL.txt`.
 
 ## How the home page chooses what to show
 
