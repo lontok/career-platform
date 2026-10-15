@@ -1,0 +1,14 @@
+{#
+  Google Analytics 4. base.html includes this once, so every page loads it once.
+  The site has no consent banner, so the tag runs for every visitor.
+  /privacy says so. Change that page in the same commit as this file.
+#}
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LZFW83PCQ2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LZFW83PCQ2');
+</script>

@@ -474,3 +474,24 @@ def test_font_is_served_from_this_site(client) -> None:
     styles = client.get("/static/styles.css").text
     assert 'url("fonts/archivo-latin.woff2")' in styles
     assert 'url("fonts/archivo-latin-ext.woff2")' in styles
+
+
+def test_google_tag_loads_once_on_every_page(client) -> None:
+    loader = "https://www.googletagmanager.com/gtag/js?id=G-LZFW83PCQ2"
+    config = "gtag('config', 'G-LZFW83PCQ2');"
+    responses = {
+        "/": client.get("/"),
+        "/contact": client.get("/contact"),
+        "/privacy": client.get("/privacy"),
+        "contact submitted": client.post(
+            "/contact",
+            data={"name": "Pat", "email": "pat@example.com", "message": "Hi"},
+        ),
+        "contact errors": client.post("/contact", data={}),
+        "not found": client.get("/projects/no-such-project"),
+    }
+    for label, response in responses.items():
+        head = response.text[: response.text.index("</head>")]
+        assert response.text.count(loader) == 1, label
+        assert response.text.count(config) == 1, label
+        assert loader in head, label
